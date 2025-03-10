@@ -1,0 +1,34 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+
+/* 3D Project Dialogs */
+.project-label {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-family: "Poppins", sans-serif;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  opacity: 0; /* Start hidden */
+  transition: opacity 0.5s ease-in-out, transform 0.3s ease-out;
+}
+
+.project-label strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffcc00;
+}
+
+.project {
+  width: 40vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  border: 1px solid #ffcc00;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: Start;
+  z-index: 1000;
+}

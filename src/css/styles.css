@@ -1,0 +1,379 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap");
+
+* {
+  font-family: "Orbitron", serif;
+  font-optical-sizing: auto;
+  line-height: 1.6;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #ccc;
+}
+
+#labelRenderer {
+  position: absolute;
+  z-index: 200;
+  top: 0;
+  pointer-events: none;
+}
+
+#renderer3D {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  z-index: 200;
+  pointer-events: none;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.planet-label-wrapper {
+  position: relative;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+}
+
+.planet-label {
+  width: fit-content;
+  height: fit-content;
+  font-size: 18px;
+  background: linear-gradient(135deg,
+      rgba(0, 0, 50, 0.8),
+      rgba(0, 0, 100, 0.8));
+  padding: 5px 10px;
+  border-radius: 5px;
+  z-index: 1000;
+  position: absolute;
+  box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transform: scale(0.5);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  transform-origin: top;
+}
+
+
+#user-dialog {
+  font-family: "Orbitron", sans-serif;
+  line-height: 1.6;
+  font-weight: 600;
+  font-size: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+  width: 450px;
+  text-align: start;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  transform: scale(0.8) translateY(-15px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+#user-dialog.hidden {
+  opacity: 0 !important;
+  transform: scale(0.5) translateY(-10px);
+}
+
+#user-dialog.visible {
+  opacity: 1 !important;
+  transform: scale(1) translateY(0);
+}
+
+#planet-label {
+  font-family: "Orbitron", serif;
+  font-optical-sizing: auto;
+  line-height: 1.6;
+  font-weight: 600;
+  font-size: 20px;
+  font-style: normal;
+  color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 10px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  margin: 10px;
+}
+
+#text-cursor {
+  font-family: "Orbitron", serif;
+  font-optical-sizing: auto;
+  line-height: 1.6;
+  font-weight: 500;
+  font-size: 20px;
+  font-style: normal;
+  color: #fff;
+  z-index: 1000;
+  display: inline-block;
+  height: 20px;
+  padding-left: 0.1em;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+  from,
+  to {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.project {
+  width: 40vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  z-index: 1000;
+  font-family: "Orbitron", sans-serif;
+  line-height: 1.6;
+  font-weight: 600;
+  font-size: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-right: 0;
+  border-radius: 8px 0 0 8px;
+  padding: 24px;
+  color: #ccc;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+  text-align: start;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(25px);
+  box-sizing: border-box;
+  overflow: hidden;
+  transform: translateX(100%);
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.project.reverse {
+  left: 0;
+  right: auto;
+  border-left: 0;
+  border-right: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0 8px 8px 0;
+  transform: translateX(-100%);
+}
+
+.project.hidden {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.project.reverse.hidden {
+  transform: translateX(-100%);
+}
+
+.project.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+
+.project.reverse.hidden {
+  transform: translateX(-100%);
+}
+
+.project.reverse.visible {
+  transform: translateX(0%);
+}
+
+
+.project.hidden {
+  transform: translateX(100%);
+}
+
+.project.visible {
+  transform: translateX(0%);
+}
+
+
+
+.project__content {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+  padding: 20px;
+  border-radius: 10px;
+  color: #fff;
+  text-align: center;
+
+}
+
+.project__title {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: rgb(146, 148, 248);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.project__description {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  text-align: start;
+  color: #ccc;
+}
+
+
+
+h2 {
+  margin-top: 10px;
+  color: rgb(146, 148, 248);
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.project__stack {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  margin-top: 10px;
+
+}
+
+.project__link {
+  font-size: 1rem;
+  color: #ccc;
+  text-decoration: none;
+  font-weight: bolder;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 25px 30px;
+  background-color: transparent;
+  letter-spacing: 4px;
+  overflow: hidden;
+  transition: 0.5s;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.btn {
+  text-decoration: none;
+  border: 1px solid rgb(146, 148, 248);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  box-shadow: 1px 1px 25px 10px rgba(146, 148, 248, 0.4);
+  scale: 1.01;
+}
+
+.btn:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg,
+      transparent,
+      rgba(146, 148, 248, 0.4),
+      transparent);
+  transition: all 650ms;
+}
+
+.btn:hover:before {
+  left: 100%;
+}
+
+.contact-section {
+  font-family: "Orbitron", sans-serif;
+  line-height: 1.6;
+  font-weight: 600;
+  font-size: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+  width: 550px;
+  text-align: start;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+
+}
+
+.contact-title {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: rgb(146, 148, 248);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.contact-description {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #ccc;
+  text-align: start;
+}
+
+.contact-socials {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  color: #ccc;
+  justify-self: end;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.contact-email {
+  color: #ccc;
+  font-weight: bold;
+}
+
+.contact-github {
+  color: #ccc;
+  filter: drop-shadow(0px 0px 8px #ccc);
+  transition: transform 0.3s ease;
+}
+
+.contact-github:hover {
+  transform: scale(1.1);
+}
+
+.contact-linkedin {
+  color: #ccc;
+  filter: drop-shadow(0px 0px 8px #125dce);
+  transition: transform 0.3s ease;
+}
+
+.contact-linkedin:hover {
+  transform: scale(1.1);
+}
