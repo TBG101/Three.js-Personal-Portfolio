@@ -41,6 +41,7 @@ import {
   updateTechPosition,
   updateTechRotation,
 } from "./modules/techStack";
+import { all } from "three/tsl";
 
 /**
  * keep hold of the current focus
@@ -290,6 +291,9 @@ function animate() {
 
         allDialogsShown[dialog.id].position.y +=
           0.001 * Math.sin(currentTime * 1.5);
+        allDialogsShown[dialog.id].position.x += 0.00025 * Math.cos(currentTime);
+        allDialogsShown[dialog.id].position.z += 0.0005 * Math.sin(currentTime);
+
 
         if (lastDialogId !== dialog.id) {
           lastDialogId = dialog.id;
