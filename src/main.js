@@ -153,7 +153,7 @@ loadAstronaut(scene, (loadedAstronaut) => {
 });
 
 // Planets
-const planets = createPlanets(scene);
+const planets = await createPlanets(scene, camera);
 
 // Contact Section
 initContactSection(scene);
@@ -164,18 +164,15 @@ const { curve, instancedMesh } = randomAsteroids(scene, 200);
 
 // techStack
 const techStack = await initTechStackSection(scene, camera);
-console.log(techStack);
 let selection = [];
 
-console.log("techStack.children", techStack.children);
 
 techStack.children.forEach((stack, index) => {
   selection.push(stack.children[0]);
 });
 
-console.log("selectionmain", selection);
 // Post Processing
-const { composer, depthOfFieldEffect } = postProccesing(
+const { composer,  bokehPass } = postProccesing(
   scene,
   camera,
   renderer,
@@ -202,11 +199,11 @@ window.addEventListener("resize", () =>
 );
 
 window.addEventListener("wheel", (event) =>
-  handleScroll(event, astronaut, camera, depthOfFieldEffect, state)
+  handleScroll(event, astronaut, camera,  state, bokehPass)
 );
 
 window.addEventListener("click", (event) =>
-  handleClick(event, camera, planets, depthOfFieldEffect, state, techStack)
+  handleClick(event, camera, planets,  state, techStack,bokehPass)
 );
 
 /** @type {CSS3DObject[]} **/
@@ -223,9 +220,7 @@ let currentTime = 0;
 // Animation Loop
 function animate() {
   stats.begin();
-  currentTime = (currentTime + Date.now() - startTime)  / 1000;
-  console.log(currentTime);
-  
+  currentTime = (currentTime + Date.now() - startTime) / 1000;
 
   if (astronaut && astroHeight === 0) {
     const boundingBox = new THREE.Box3().setFromObject(astronaut);
@@ -237,26 +232,13 @@ function animate() {
     if (planet.lights) planet.lights.rotation.y += 0.002;
     if (planet.clouds) planet.clouds.rotation.y += 0.0023;
     if (planet.glowMesh) planet.glowMesh.rotation.y += 0.002;
+    if (planet.orbitAnimation) {
+      planet.orbitAnimation.forEach((animateFunction) => {
+        animateFunction(currentTime, camera);
+      });
+    }
   });
 
-  // stars.forEach((star) => {
-  //   star.rotation.x += star.rotationSpeed;
-  //   star.rotation.y += star.rotationSpeed;
-
-  //   // Move the star within a range
-  //   const deltaX =
-  //     Math.sin(currentTime * star.movementSpeed) * star.movementRange;
-  //   const deltaY =
-  //     Math.cos(currentTime * star.movementSpeed) * star.movementRange;
-  //   const deltaZ =
-  //     Math.sin(currentTime * star.movementSpeed) * star.movementRange;
-
-  //   star.position.set(
-  //     star.originalPosition.x + deltaX,
-  //     star.originalPosition.y + deltaY,
-  //     star.originalPosition.z + deltaZ
-  //   );
-  // });
   moveStars(currentTime);
 
   // asteroids
@@ -265,6 +247,7 @@ function animate() {
   instancedMesh.position.copy(position);
   instancedMesh.instanceMatrix.needsUpdate = true;
 
+  // Dialogs
   if (astronaut && astroHeight) {
     dialogData.forEach((dialog) => {
       const dialogVisible = isInBetween(
@@ -275,7 +258,6 @@ function animate() {
 
       if (dialogVisible) {
         if (!allDialogsShown[dialog.id]) {
-          console.log(dialog.text);
           allDialogsShown[dialog.id] = createDialog(scene, dialog.text, {
             x: dialog.dialogPosition.x,
             y: dialog.dialogPosition.y + astroHeight / 2,
@@ -291,9 +273,9 @@ function animate() {
 
         allDialogsShown[dialog.id].position.y +=
           0.001 * Math.sin(currentTime * 1.5);
-        allDialogsShown[dialog.id].position.x += 0.00025 * Math.cos(currentTime);
+        allDialogsShown[dialog.id].position.x +=
+          0.00025 * Math.cos(currentTime);
         allDialogsShown[dialog.id].position.z += 0.0005 * Math.sin(currentTime);
-
 
         if (lastDialogId !== dialog.id) {
           lastDialogId = dialog.id;

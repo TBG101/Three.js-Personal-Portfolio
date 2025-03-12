@@ -37,7 +37,6 @@ const dialogData = [
 ];
 
 const techStack = [
-
   {
     name: "CSS",
     icon: "./public/models/techstack/css.glb",
@@ -146,28 +145,31 @@ const offsetZ = -10;
 const planetData = [
   {
     size: 15,
-    position: { x: offsetX, y: 90, z: offsetZ * 3 },
+    position: { x: 35, y: 90, z: offsetZ * 3 },
     name: "Project A",
     documentSectionEl: document.getElementById("project-A"),
     createFunction: createEarth,
+    tech: ["React.js", "Node.js", "MongoDB"],
   },
   {
     size: 30,
     position: {
-      x: offsetX * -1.5,
+      x: -55,
       y: 135,
       z: offsetZ * 5,
     },
     name: "Project B",
     documentSectionEl: document.getElementById("project-B"),
     createFunction: createMars,
+    tech: ["Flutter", "Firebase"],
   },
   {
     size: 25,
-    position: { x: offsetX * 1.8, y: 175, z: offsetZ * 4 },
+    position: { x: 50, y: 175, z: offsetZ * 4 },
     name: "Project C",
     documentSectionEl: document.getElementById("project-C"),
     createFunction: createEarth,
+    tech: ["React.js", "Node.js", "MongoDB"],
   },
 ];
 

@@ -103,18 +103,18 @@ export function initRenderer() {
   renderer.domElement.style.zIndex = 50;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+  renderer.shadowMap.enabled = true;
 
   return renderer;
 }
 
 export function initLights(scene) {
-  // const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-  // scene.add(ambientLight);
-  // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  // directionalLight.position.set(5, 10, 7.5);
-  // scene.add(directionalLight);
-
   const sunLight = new THREE.DirectionalLight(0xffffff, 3.0);
+  sunLight.castShadow = true;
+  sunLight.shadow.camera.far = 500;
+  sunLight.shadow.camera.near = 0.1;
+  sunLight.shadow.mapSize.set(1024, 1024);
+
   sunLight.position.set(0.5, 0.5, 1);
   scene.add(sunLight);
 }
@@ -126,7 +126,7 @@ export function initSlider(astronaut, camera) {
   slider.max = maxY;
   slider.value = astronaut ? astronaut.position.y : 0;
   slider.style.position = "absolute";
-  slider.style.top = "0px";
+  slider.style.bottom = "0px";
   slider.style.right = "0px";
   slider.style.width = "500px";
   slider.style.height = "20px";
@@ -164,12 +164,20 @@ export function loadAstronaut(scene, callback) {
  * @param {camera} camera
  * @returns {{mesh: THREE.Mesh, lights: THREE.Mesh, clouds: THREE.Mesh, glow: THREE.Mesh, group: THREE.Group, label: CSS3DObject, name: string}}
  * **/
-export function createPlanets(scene, camera) {
+export async function createPlanets(scene, camera) {
   const planets = [];
-  planetData.forEach(({ size, position, name, createFunction }) => {
-    const planet = createFunction(scene, position, size, name);
-    planets.push(planet);
-  });
+  await planetData.forEach(
+    async ({ size, position, name, createFunction, tech: techUsed }) => {
+      const planet = await createFunction(
+        scene,
+        position,
+        size,
+        name,
+        techUsed
+      );
+      planets.push(planet);
+    }
+  );
   return planets;
 }
 
@@ -363,53 +371,40 @@ export function postProccesing(scene, camera, renderer, selection) {
     0.4
   );
 
-  const depthOfFieldEffect = new DepthOfFieldEffect(camera, {
-    focusDistance: 0.01,
-    focalLength: 0.05,
-    bokehScale: 1,
-  });
-
-  const smaaEffect = new SMAAEffect();
-
   const outlinePass = new OutlinePass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
     scene,
     camera
   );
-  outlinePass.edgeStrength = 0.8; // Adjust thickness
+  outlinePass.edgeStrength = 0.8;
   outlinePass.edgeGlow = 0;
   outlinePass.edgeThickness = 1;
-  outlinePass.visibleEdgeColor.set(0xffffff); // White outline
-  outlinePass.hiddenEdgeColor.set(0x000000); // Black for hidden edges
+  outlinePass.visibleEdgeColor.set(0xffffff);
+  outlinePass.hiddenEdgeColor.set(0x000000);
   outlinePass.selectedObjects = selection;
-
-  // Log the selected objects to ensure they are correct
-  console.log("Selected objects for outline:", selection);
 
   const smaaPass = new SMAAPass(
     window.innerWidth * renderer.getPixelRatio(),
     window.innerHeight * renderer.getPixelRatio()
   );
 
-  const bokehPass = new BokehPass(scene, camera, {
+  let bokehPass = new BokehPass(scene, camera, {
     focus: 13.5,
-    aperture: 0.000005,
+    aperture: 0.00001,
     maxblur: 0.005,
   });
+
   const afterimage = new AfterimagePass();
-  afterimage.uniforms['damp'].value = 0.6; // Adjust for blur intensity
+  afterimage.uniforms["damp"].value = 0.6;
 
-  const dofPass = new EffectPass(camera, depthOfFieldEffect);
   composer.addPass(renderPass);
-  composer.addPass(afterimage);
-
   composer.addPass(bloomEffect);
   composer.addPass(bokehPass);
   composer.addPass(outlinePass);
+  composer.addPass(afterimage);
 
   composer.addPass(smaaPass);
   composer.addPass(new OutputPass());
-  console.log("selection", selection);
 
-  return { composer, depthOfFieldEffect };
+  return { composer, bokehPass };
 }

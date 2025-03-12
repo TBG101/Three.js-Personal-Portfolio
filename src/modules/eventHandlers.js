@@ -2,6 +2,18 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { moveAstronaut } from "./movement";
 import { maxY, minY, planetData } from "./constValues";
+import { BokehPass } from "three/examples/jsm/Addons.js";
+
+/**
+ * @typedef {Object} Planet
+ * @property {THREE.Mesh} mesh
+ * @property {THREE.Mesh} lights
+ * @property {THREE.Mesh} clouds
+ * @property {THREE.Mesh} glow
+ * @property {THREE.Group} group
+ * @property {CSS3DObject} label
+ * @property {string} name
+ */
 
 export function handleResize(camera, renderer, labelRenderer) {
   const width = window.innerWidth;
@@ -16,16 +28,10 @@ export function handleResize(camera, renderer, labelRenderer) {
  * @param {HTMLElement} astronutLabelDiv
  * @param {THREE.Camera} camera
  * @param {THREE.Mesh} astronaut
- * @param {THREE.ShaderMaterial} depthOfFieldEffect
  * @param {{canMove: boolean, currentFocus: number}} state
+ * @param {BokehPass} bokehPass
  *  **/
-export function handleScroll(
-  event,
-  astronaut,
-  camera,
-  depthOfFieldEffect,
-  state
-) {
+export function handleScroll(event, astronaut, camera, state, bokehPass) {
   if (!state.canMove) return;
   if (event.deltaY === 0) return;
   if (!astronaut) return;
@@ -33,7 +39,7 @@ export function handleScroll(
   const cameraDistanceToAstronaut = camera.position.distanceTo(
     astronaut.position
   );
-  const defaultDistanceCameraToAstro = 15.2;
+  // const defaultDistanceCameraToAstro = 15.2;
 
   if (gsap.isTweening(camera.position)) return;
 
@@ -51,11 +57,12 @@ export function handleScroll(
         state.canMove = true;
       },
     });
+    gsap.to(bokehPass.uniforms["focus"], {
+      value: cameraDistanceToAstronaut,
+      duration: 0.5,
+      ease: "power2",
+    });
 
-    gsap.to(
-      depthOfFieldEffect.circleOfConfusionMaterial.uniforms.focusDistance,
-      { value: 0.01, duration: 0.5, ease: "power2" }
-    );
     planetData.forEach((planet) => {
       if (!planet.documentSectionEl) return;
       planet.documentSectionEl.classList.remove("visible");
@@ -70,24 +77,14 @@ export function handleScroll(
   moveAstronaut(astronaut, camera, clampedAstronautY);
   state.currentFocus = -1;
 }
-/**
- * @typedef {Object} Planet
- * @property {THREE.Mesh} mesh
- * @property {THREE.Mesh} lights
- * @property {THREE.Mesh} clouds
- * @property {THREE.Mesh} glow
- * @property {THREE.Group} group
- * @property {CSS3DObject} label
- * @property {string} name
- */
 
 /**
  * @param {MouseEvent} event
  * @param {THREE.Camera} camera
  * @param {Planet[]} planets
- * @param {THREE.ShaderMaterial} depthOfFieldEffect
  * @param {{canMove: boolean, currentFocus: number}} state
  * @param {THREE.Group<THREE.Object3DEventMap>} techStacks
+ * @param {BokehPass} bokehPass
  * @returns {void}
  * @description Handle the click event
  */
@@ -95,9 +92,10 @@ export function handleClick(
   event,
   camera,
   planets,
-  depthOfFieldEffect,
+
   state,
-  techStacks
+  techStacks,
+  bokehPass
 ) {
   if (!state.canMove) {
     state.canMove = true; // Enable scrolling
@@ -134,7 +132,7 @@ export function handleClick(
       return;
     }
   }
-  
+
   const mouse = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -145,7 +143,6 @@ export function handleClick(
   });
 
   const intersects = raycaster.intersectObjects(meshIntersects);
-  console.log(intersects.length);
 
   if (intersects.length > 0 && !gsap.isTweening(camera.position)) {
     // get the planet group
@@ -169,18 +166,15 @@ export function handleClick(
     // calculate safe position for camera
     const boundingBox = new THREE.Box3().setFromObject(group);
     const boundingSphere = boundingBox.getBoundingSphere(new THREE.Sphere());
-    const safeDistance = boundingSphere.radius * 2;
+    const safeDistance = boundingSphere.radius * 1.5;
     const newCameraPosition = new THREE.Vector3().copy(group.position);
     newCameraPosition.z += safeDistance;
+    gsap.to(bokehPass.uniforms["focus"], {
+      value: group.position.distanceTo(newCameraPosition),
+      duration: 1.5,
+      ease: " power2.inOut",
+    });
 
-    gsap.to(
-      depthOfFieldEffect.circleOfConfusionMaterial.uniforms.focusDistance,
-      {
-        value: group.position.distanceTo(newCameraPosition) / 1000,
-        duration: 1.5,
-        ease: "power2.inOut",
-      }
-    );
     const fov = camera.fov * (Math.PI / 180); // convert vertical fov to radians
     const screenHeight = 2 * Math.tan(fov / 2) * safeDistance; // screen height at the safe distance
     const screenWidth = screenHeight * camera.aspect; // screen width at the safe distance
