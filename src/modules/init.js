@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { astronautPath, maxY, minY } from "./constValues";
 import { planetData } from "./constValues";
 import { CSS3DObject } from "three/addons/renderers/CSS3DRenderer.js";
@@ -17,7 +17,6 @@ import {
   SMAAPass,
   UnrealBloomPass,
 } from "three/examples/jsm/Addons.js";
-import { DepthOfFieldEffect, EffectPass, SMAAEffect } from "postprocessing";
 
 export function initScene() {
   return new THREE.Scene();

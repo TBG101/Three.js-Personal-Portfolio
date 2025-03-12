@@ -39,97 +39,95 @@ const dialogData = [
 const techStack = [
   {
     name: "CSS",
-    icon: "./public/models/techstack/css.glb",
+    icon: "/models/techstack/css.glb",
   },
   {
     name: "HTML",
-    icon: "./public/models/techstack/html.glb",
+    icon: "/models/techstack/html.glb",
   },
   {
     name: "JavaScript",
-    icon: "./public/models/techstack/js.glb",
+    icon: "/models/techstack/js.glb",
   },
   {
     name: "Flutter",
-    icon: "./public/models/techstack/flutter.glb",
+    icon: "/models/techstack/flutter.glb",
   },
   {
     name: "React.js",
-    icon: "./public/models/techstack/reactjs.glb",
+    icon: "/models/techstack/reactjs.glb",
   },
   {
     name: "Node.js",
-    icon: "./public/models/techstack/nodejs.glb",
+    icon: "/models/techstack/nodejs.glb",
   },
   {
     name: "Express.js",
-    icon: "./public/models/techstack/express.glb",
+    icon: "/models/techstack/express.glb",
   },
   {
     name: "MongoDB",
-    icon: "./public/models/techstack/mongodb.glb",
+    icon: "/models/techstack/mongodb.glb",
   },
   {
     name: "Firebase",
-    icon: "./public/models/techstack/firebase.glb",
+    icon: "/models/techstack/firebase.glb",
   },
-
   {
     name: "C#",
-    icon: "./public/models/techstack/csharp.glb",
+    icon: "/models/techstack/csharp.glb",
   },
   {
     name: "C++",
-    icon: "./public/models/techstack/cpp.glb",
+    icon: "/models/techstack/cpp.glb",
   },
-
   {
     name: "Python",
-    icon: "./public/models/techstack/python.glb",
+    icon: "/models/techstack/python.glb",
   },
   {
     name: "Java",
-    icon: "./public/models/techstack/java.glb",
+    icon: "/models/techstack/java.glb",
   },
   {
     name: "Git",
-    icon: "./public/models/techstack/git.glb",
+    icon: "/models/techstack/git.glb",
   },
   {
     name: "Docker",
-    icon: "./public/models/techstack/docker.glb",
+    icon: "/models/techstack/docker.glb",
   },
   {
     name: "Figma",
-    icon: "./public/models/techstack/figma.glb",
+    icon: "/models/techstack/figma.glb",
   },
   {
     name: "Blender",
-    icon: "./public/models/techstack/blender.glb",
+    icon: "/models/techstack/blender.glb",
   },
   {
     name: "Rust",
-    icon: "./public/models/techstack/rust.glb",
+    icon: "/models/techstack/rust.glb",
   },
   {
     name: "Tailwind",
-    icon: "./public/models/techstack/tailwind.glb",
+    icon: "/models/techstack/tailwind.glb",
   },
   {
     name: "Tauri",
-    icon: "./public/models/techstack/tauri.glb",
+    icon: "/models/techstack/tauri.glb",
   },
   {
     name: "PostgresSQL",
-    icon: "./public/models/techstack/PostgresSQL.glb",
+    icon: "/models/techstack/PostgresSQL.glb",
   },
   {
     name: "MySQL",
-    icon: "./public/models/techstack/MySQL.glb",
+    icon: "/models/techstack/MySQL.glb",
   },
   {
     name: "graphql",
-    icon: "./public/models/techstack/graphql.glb",
+    icon: "/models/techstack/graphql.glb",
   },
 ];
 const techStackDirection = techStack.reduce((acc, tech, index) => {

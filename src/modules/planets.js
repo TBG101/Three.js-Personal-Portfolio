@@ -102,6 +102,7 @@ async function createOrbitTech(
   offsetX = 0,
   techPath = "./public/models/techstack/cpp.glb"
 ) {
+  
   const loader = new GLTFLoader();
   /**@type {THREE.Object3D<Object3DEventMap>} */
   let techMesh = null;
@@ -112,8 +113,11 @@ async function createOrbitTech(
         techMesh = gltf.scene.children[0];
         resolve();
       },
-      undefined,
-      reject
+      (progerss) => {},
+      (error) => {
+        console.error("Error loading tech mesh", error);
+        reject();
+      }
     );
   });
 
@@ -138,7 +142,6 @@ async function createOrbitTech(
     color: 0xffffff,
     opacity: 0.15,
     transparent: true,
-
   });
   const orbitCircle = new THREE.LineLoop(orbitGeometry, orbitMaterial);
 

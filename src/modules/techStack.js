@@ -72,7 +72,10 @@ export async function initTechStackSection(scene, camera) {
 
   async function loadStack(stack, index, isSecondHalf) {
     return new Promise((resolve) => {
-      loader.load(stack.icon, (gltf) => {
+      const path = stack.icon.split("/").slice(0, -1).join("/");
+      const name = stack.icon.split("/").pop();
+      loader.setPath(path + "/");
+      loader.load(name, (gltf) => {
         const model = gltf.scene;
         model.traverse((child) => {
           if (child.isMesh) {
@@ -131,12 +134,10 @@ export async function initTechStackSection(scene, camera) {
 export function updateTechPosition(tech, time, index) {
   const speed = 1;
   const { direction, randomFactor } = techStackDirection[index];
-  tech.position.x +=
-    Math.sin(time * speed * randomFactor) * 0.0001 * direction;
+  tech.position.x += Math.sin(time * speed * randomFactor) * 0.0001 * direction;
   tech.position.y +=
     Math.sin(time * speed * randomFactor) * 0.00018 * direction;
-  tech.position.z +=
-    Math.sin(time * speed * randomFactor) * 0.0002 * direction;
+  tech.position.z += Math.sin(time * speed * randomFactor) * 0.0002 * direction;
 }
 
 /**
