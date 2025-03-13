@@ -17,62 +17,9 @@ import {
   SMAAPass,
   UnrealBloomPass,
 } from "three/examples/jsm/Addons.js";
-
+import { SSAARenderPass } from "three/addons/postprocessing/SSAARenderPass.js";
 export function initScene() {
   return new THREE.Scene();
-}
-
-export function initSkybox(scene) {
-  let geometry = new THREE.BoxGeometry(1000, 1000, 1000);
-  let material = new THREE.MeshBasicMaterial({
-    side: THREE.BackSide,
-    map: new THREE.TextureLoader().load("./textures/stars_background.jpg"),
-  });
-  let skybox = new THREE.Mesh(geometry, material);
-  scene.add(skybox);
-}
-
-export function initSkyBox2(scene) {
-  let geometry = new THREE.SphereGeometry(1000, 32, 32);
-  let texture = new THREE.TextureLoader().load("./textures/space_blue.png");
-
-  let material = new THREE.MeshStandardMaterial({
-    side: THREE.BackSide,
-    map: texture,
-    emissive: new THREE.Color(0x222244), // Soft space glow
-    emissiveMap: texture, // Use the texture to emit light
-    emissiveIntensity: 1.5, // Adjust glow strength
-  });
-
-  let skybox = new THREE.Mesh(geometry, material);
-  scene.add(skybox);
-}
-
-export function initSkyBox3(scene) {
-  const loader = new GLTFLoader();
-  loader.load(
-    "./models/milkyway.glb",
-    (gltf) => {
-      const spaceStation = gltf.scene;
-      spaceStation.position.set(0, 0, 0);
-      spaceStation.scale.setScalar(100);
-
-      // Ensure textures update properly
-      spaceStation.traverse((child) => {
-        if (child.isMesh) {
-          child.material.needsUpdate = true;
-        }
-      });
-
-      scene.add(spaceStation);
-    },
-    (xhr) => {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-    },
-    (error) => {
-      console.error("An error happened", error);
-    }
-  );
 }
 
 export function initCamera() {
@@ -133,29 +80,29 @@ export function initSlider(astronaut, camera) {
   return document.body.appendChild(slider);
 }
 
-export function loadAstronaut(scene, callback) {
-  const loader = new GLTFLoader();
-  loader.load(
-    astronautPath,
-    (gltf) => {
-      const astronaut = gltf.scene;
-      astronaut.position.set(0, -5, 0);
-      astronaut.scale.set(1, 1, 1);
+export async function loadAstronaut(scene) {
+  return new Promise((resolve, reject) => {
+    const loader = new GLTFLoader();
+    loader.load(
+      astronautPath,
+      (gltf) => {
+        const astronaut = gltf.scene;
+        astronaut.position.set(0, -5, 0);
+        astronaut.scale.set(1, 1, 1);
 
-      // Ensure textures update properly
-      astronaut.traverse((child) => {
-        if (child.isMesh) {
-          child.material.needsUpdate = true;
-        }
-      });
-
-      scene.add(astronaut);
-      callback(astronaut);
-    },
-    (xhr) => {},
-
-    (error) => console.error("Error loading astronaut:", error)
-  );
+        // Ensure textures update properly
+        astronaut.traverse((child) => {
+          if (child.isMesh) {
+            child.material.needsUpdate = true;
+          }
+        });
+        scene.add(astronaut);
+        resolve({ astronaut, animations: gltf.animations });
+      },
+      (xhr) => {},
+      (error) => reject(error)
+    );
+  });
 }
 
 /**
@@ -365,8 +312,8 @@ export function postProccesing(scene, camera, renderer, selection) {
 
   const bloomEffect = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.4,
-    0.75,
+    0.35,
+    0.5,
     0.4
   );
 
@@ -387,22 +334,26 @@ export function postProccesing(scene, camera, renderer, selection) {
     window.innerHeight * renderer.getPixelRatio()
   );
 
+  const ssaaPass = new SSAARenderPass(scene, camera);
+  ssaaPass.sampleLevel = 2;
+
   let bokehPass = new BokehPass(scene, camera, {
     focus: 13.5,
     aperture: 0.00001,
-    maxblur: 0.005,
+    maxblur: 0.004,
   });
 
   const afterimage = new AfterimagePass();
   afterimage.uniforms["damp"].value = 0.6;
 
   composer.addPass(renderPass);
+  composer.addPass(ssaaPass);
+  composer.addPass(smaaPass);
   composer.addPass(bloomEffect);
   composer.addPass(bokehPass);
   composer.addPass(outlinePass);
   composer.addPass(afterimage);
 
-  composer.addPass(smaaPass);
   composer.addPass(new OutputPass());
 
   return { composer, bokehPass };

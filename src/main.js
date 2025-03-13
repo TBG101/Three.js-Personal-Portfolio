@@ -1,8 +1,4 @@
 import * as THREE from "three";
-import {
-  CSS2DRenderer,
-  CSS2DObject,
-} from "three/examples/jsm/renderers/CSS2DRenderer";
 import gsap from "gsap";
 
 import {
@@ -15,8 +11,6 @@ import {
   randomAsteroids,
   initSlider,
   initContactSection,
-  initSkybox,
-  initSkyBox2,
   addStars,
   postProccesing,
 } from "./modules/init";
@@ -60,9 +54,6 @@ const renderer = initRenderer();
 const camera = initCamera();
 scene.add(camera);
 
-const labelRenderer = new CSS2DRenderer();
-labelRenderer.setSize(window.innerWidth, window.innerHeight);
-labelRenderer.domElement.id = "labelRenderer";
 
 const renderer3D = new CSS3DRenderer();
 renderer3D.setSize(window.innerWidth, window.innerHeight);
@@ -139,17 +130,15 @@ function moveStars(currentTime) {
 }
 
 // Load Astronaut Model
-/** @type {THREE.Group<THREE.Object3DEventMap>} **/
-let astronaut;
-loadAstronaut(scene, (loadedAstronaut) => {
-  astronaut = loadedAstronaut;
-  gsap.to(camera.position, {
-    ease: "power4.out",
-    duration: 1,
-    x: 0,
-    y: astronaut.position.y + 2,
-    z: astronaut.position.z + 15,
-  });
+
+const { astronaut, animations } = await loadAstronaut(scene);
+
+gsap.to(camera.position, {
+  ease: "power4.out",
+  duration: 1,
+  x: 0,
+  y: astronaut.position.y + 2,
+  z: astronaut.position.z + 15,
 });
 
 // Planets
@@ -166,13 +155,12 @@ const { curve, instancedMesh } = randomAsteroids(scene, 200);
 const techStack = await initTechStackSection(scene, camera);
 let selection = [];
 
-
 techStack.children.forEach((stack, index) => {
   selection.push(stack.children[0]);
 });
 
 // Post Processing
-const { composer,  bokehPass } = postProccesing(
+const { composer, bokehPass } = postProccesing(
   scene,
   camera,
   renderer,
@@ -199,13 +187,21 @@ window.addEventListener("resize", () =>
 );
 
 window.addEventListener("wheel", (event) =>
-  handleScroll(event, astronaut, camera,  state, bokehPass)
+  handleScroll(event, astronaut, camera, state, bokehPass)
 );
 
 window.addEventListener("click", (event) =>
-  handleClick(event, camera, planets,  state, techStack,bokehPass)
+  handleClick(event, camera, planets, state, techStack, bokehPass)
 );
+// animations
+const animation = animations[0];
+console.log(animation);
+const mixer = new THREE.AnimationMixer(astronaut);
+const action = mixer.clipAction(animation);
+action.play();
 
+
+// animate needed data
 /** @type {CSS3DObject[]} **/
 let allDialogsShown = [];
 
@@ -220,6 +216,7 @@ let currentTime = 0;
 // Animation Loop
 function animate() {
   stats.begin();
+  mixer.update(0.01);
   currentTime = (currentTime + Date.now() - startTime) / 1000;
 
   if (astronaut && astroHeight === 0) {
