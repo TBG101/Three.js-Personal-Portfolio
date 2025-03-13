@@ -92,7 +92,6 @@ export function handleClick(
   event,
   camera,
   planets,
-
   state,
   techStacks,
   bokehPass
@@ -166,7 +165,7 @@ export function handleClick(
     // calculate safe position for camera
     const boundingBox = new THREE.Box3().setFromObject(group);
     const boundingSphere = boundingBox.getBoundingSphere(new THREE.Sphere());
-    const safeDistance = boundingSphere.radius * 1.5;
+    const safeDistance = boundingSphere.radius * 1.3;
     const newCameraPosition = new THREE.Vector3().copy(group.position);
     newCameraPosition.z += safeDistance;
     gsap.to(bokehPass.uniforms["focus"], {
