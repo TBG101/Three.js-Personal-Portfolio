@@ -36,6 +36,7 @@ import {
   updateTechRotation,
 } from "./modules/techStack";
 import { all } from "three/tsl";
+import { createBeacon, moveBeacon } from "./modules/contactme";
 
 /**
  * keep hold of the current focus
@@ -45,7 +46,8 @@ import { all } from "three/tsl";
  * **/
 const state = {
   canMove: true,
-  currentFocus: -1, // -1 means on astronaut, -2 means on dialog, n means on planet n
+  currentFocus: -1, // -1 means on astronaut, -2 means on dialog, n means on planet n,
+  contactShown: false,
 };
 
 // Scene Setup
@@ -53,7 +55,6 @@ const scene = initScene();
 const renderer = initRenderer();
 const camera = initCamera();
 scene.add(camera);
-
 
 const renderer3D = new CSS3DRenderer();
 renderer3D.setSize(window.innerWidth, window.innerHeight);
@@ -90,6 +91,8 @@ loader.load("./textures/space_blue.png", (texture) => {
   texture.repeat.setScalar(1);
   texture.encoding = THREE.sRGBEncoding;
   texture.mapping = THREE.EquirectangularReflectionMapping;
+  texture.encoding = THREE.sRGBEncoding;
+
   scene.environment = texture;
   scene.background = texture;
 
@@ -101,22 +104,6 @@ loader.load("./textures/space_blue.png", (texture) => {
   backgroundPlane.position.set(0, 0, -500); // Adjust as needed
   scene.add(backgroundPlane);
 });
-
-/*
-OLD STARS
-Array(600)
-  .fill()
-  .forEach(() => {
-    let star = addStar(scene, {
-      size: Math.random() * 0.5, // Random star size
-      spread: 300, // Default spread range
-      color: 0xffffff, // Default color
-      speed: Math.random() * 0.02, // Random rotation speed
-      movementSpeed: Math.random() * 0.02, // Random movement speed
-      movementRange: Math.random() * 30, // Random movement range
-    });
-    stars.push(star);
-  }); */
 
 // Stars
 let stars = addStars(scene, 2000);
@@ -130,22 +117,21 @@ function moveStars(currentTime) {
 }
 
 // Load Astronaut Model
-
 const { astronaut, animations } = await loadAstronaut(scene);
-
-gsap.to(camera.position, {
-  ease: "power4.out",
-  duration: 1,
-  x: 0,
-  y: astronaut.position.y + 2,
-  z: astronaut.position.z + 15,
-});
 
 // Planets
 const planets = await createPlanets(scene, camera);
 
 // Contact Section
-initContactSection(scene);
+const beacon = await createBeacon(scene, new THREE.Vector3(-10, 233, -15));
+document.getElementById("close-sos").addEventListener("click", () => {
+  state.contactShown = false;
+  const element = document.getElementById("sos-interface");
+  element.classList.remove("visible");
+  element.classList.add("hidden");
+   
+});
+
 
 // astroids
 let animateAstrroProgress = 0;
@@ -158,6 +144,7 @@ let selection = [];
 techStack.children.forEach((stack, index) => {
   selection.push(stack.children[0]);
 });
+selection.push(beacon);
 
 // Post Processing
 const { composer, bokehPass } = postProccesing(
@@ -191,15 +178,23 @@ window.addEventListener("wheel", (event) =>
 );
 
 window.addEventListener("click", (event) =>
-  handleClick(event, camera, planets, state, techStack, bokehPass)
+  handleClick(event, camera, planets, state, techStack, bokehPass, beacon)
 );
-// animations
+
+gsap.to(camera.position, {
+  ease: "power4.out",
+  duration: 1,
+  x: 0,
+  y: astronaut.position.y + 2,
+  z: astronaut.position.z + 15,
+});
+
+// astronaut animations
 const animation = animations[0];
 console.log(animation);
 const mixer = new THREE.AnimationMixer(astronaut);
 const action = mixer.clipAction(animation);
 action.play();
-
 
 // animate needed data
 /** @type {CSS3DObject[]} **/
@@ -294,6 +289,8 @@ function animate() {
       }
     });
   }
+
+  moveBeacon(beacon, currentTime);
 
   // techStack
   techStack.children.forEach((stack, index) => {

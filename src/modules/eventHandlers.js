@@ -28,13 +28,14 @@ export function handleResize(camera, renderer, labelRenderer) {
  * @param {HTMLElement} astronutLabelDiv
  * @param {THREE.Camera} camera
  * @param {THREE.Mesh} astronaut
- * @param {{canMove: boolean, currentFocus: number}} state
+ * @param {{canMove: boolean, currentFocus: number, contactShown: boolean}} state
  * @param {BokehPass} bokehPass
  *  **/
 export function handleScroll(event, astronaut, camera, state, bokehPass) {
   if (!state.canMove) return;
   if (event.deltaY === 0) return;
   if (!astronaut) return;
+  if (state.contactShown) return;
 
   const cameraDistanceToAstronaut = camera.position.distanceTo(
     astronaut.position
@@ -94,7 +95,8 @@ export function handleClick(
   planets,
   state,
   techStacks,
-  bokehPass
+  bokehPass,
+  beacon
 ) {
   if (!state.canMove) {
     state.canMove = true; // Enable scrolling
@@ -108,6 +110,14 @@ export function handleClick(
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
+
+    const beaconIntersects = raycaster.intersectObjects([beacon]);
+    if (beaconIntersects.length > 0) {
+      const element = document.getElementById("sos-interface");
+      element.className = "visible";
+      state.contactShown = true;
+      return;
+    }
 
     const techStackBoundingBoxes = techStacks.children.map((child) => {
       const box = new THREE.Box3().setFromObject(child);

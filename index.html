@@ -8,7 +8,7 @@
   </head>
   <body>
     <script type="module" src="/src/main.js"></script>
-    <section id="project-A" class="project ">
+    <section id="project-A" class="project">
       <div class="project__content">
         <h1 class="project__title">Astronaut</h1>
         <p class="project__description">
@@ -66,5 +66,65 @@
         </div>
       </div>
     </section>
+    <div id="sos-interface" class="hidden">
+      <div class="sos-container">
+        <h2>🛰️ Beacon Signal Detected</h2>
+        <p>
+          A forgotten beacon pulses in the void... A long-lost message is
+          embedded within.
+        </p>
+        <div class="sos-message">
+          <p><strong>🔹 Decoded Message:</strong></p>
+          <p>
+            "This is Captain <span id='sos-name'>Zied Harallah</span>, custodian of this celestial waypoint.
+            If you've found this beacon, you are among the explorers of the digital frontier.
+            My mission: to craft immersive experiences and shape the virtual cosmos.
+            The void may be infinite, but connection is within reach. Establish contact below."
+          </p>
+          <p><strong>Secure Communication Links:</strong></p>
+          <ul>
+            <li>📧 <a href="mailto:ziedhrz@gmail.com">ziedhrz@gmail.com</a></li>
+            <li>
+              🔗
+              <a
+                href="https://www.yourportfolio.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Portfolio</a
+              >
+            </li>
+            <li>
+              💼
+              <a
+                href="https://linkedin.com/in/zied-harzallah"
+                target="_blank"
+                rel="noopener noreferrer"
+                >LinkedIn</a
+              >
+            </li>
+            <li>
+              💻
+              <a
+                href="https://github.com/TBG101"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="container" style="width: 100%">
+          <button
+            id="close-sos"
+            href="https://github.com/yourusername/astronaut-project"
+            class="project__link btn"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="text-decoration: none;width: 100%;"
+            >🚀 Close Transmission
+          </button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

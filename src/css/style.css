@@ -9,7 +9,8 @@
   border-radius: 8px;
   font-size: 14px;
   text-align: center;
-  opacity: 0; /* Start hidden */
+  opacity: 0;
+  /* Start hidden */
   transition: opacity 0.5s ease-in-out, transform 0.3s ease-out;
 }
 
@@ -32,3 +33,5 @@
   align-items: Start;
   z-index: 1000;
 }
+
+
