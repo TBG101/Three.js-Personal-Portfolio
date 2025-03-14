@@ -7,13 +7,11 @@ import { contactData } from "./constValues";
 
 import {
   AfterimagePass,
-  BloomPass,
   BokehPass,
   EffectComposer,
   OutlinePass,
   OutputPass,
   RenderPass,
-  ShaderPass,
   SMAAPass,
   UnrealBloomPass,
 } from "three/examples/jsm/Addons.js";
@@ -65,7 +63,7 @@ export function initLights(scene) {
   scene.add(sunLight);
 }
 
-export function initSlider(astronaut, camera) {
+export function initSlider(astronaut) {
   const slider = document.createElement("input");
   slider.type = "range";
   slider.min = minY;
@@ -99,7 +97,7 @@ export async function loadAstronaut(scene) {
         scene.add(astronaut);
         resolve({ astronaut, animations: gltf.animations });
       },
-      (xhr) => {},
+      () => {},
       (error) => reject(error)
     );
   });
@@ -110,7 +108,7 @@ export async function loadAstronaut(scene) {
  * @param {camera} camera
  * @returns {{mesh: THREE.Mesh, lights: THREE.Mesh, clouds: THREE.Mesh, glow: THREE.Mesh, group: THREE.Group, label: CSS3DObject, name: string}}
  * **/
-export async function createPlanets(scene, camera) {
+export async function createPlanets(scene) {
   const planets = [];
   await planetData.forEach(
     async ({ size, position, name, createFunction, tech: techUsed }) => {

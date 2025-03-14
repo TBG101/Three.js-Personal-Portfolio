@@ -137,8 +137,7 @@ const techStackDirection = techStack.reduce((acc, tech, index) => {
   return acc;
 }, []);
 
-const offsetX = 30;
-const offsetY = 10;
+
 const offsetZ = -10;
 const planetData = [
   {

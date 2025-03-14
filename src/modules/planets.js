@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { createPlanet3DLabel } from "./planetLabels";
-import { degToRad } from "three/src/math/MathUtils.js";
 import { techStack } from "./constValues";
 import { isInBetween } from "./utils";
 
@@ -55,45 +54,6 @@ function getFresnelMat({ rimHex = 0x0088ff, facingHex = 0x000000 } = {}) {
   return fresnelMat;
 }
 
-function createMoon(orbitTilt, radius = 1, scale = 0.05, offsetX = 0) {
-  const geometry = new THREE.IcosahedronGeometry(1, 12);
-  const material = new THREE.MeshPhongMaterial({
-    map: new THREE.TextureLoader().load("./textures/moon/moon.jpg"),
-    bumpMap: new THREE.TextureLoader().load("./textures/moon/moon_bump.jpg"),
-    bumpScale: 0.05,
-  });
-
-  const moonMesh = new THREE.Mesh(geometry, material);
-  moonMesh.scale.setScalar(scale);
-  moonMesh.rotation.y = THREE.MathUtils.degToRad(90);
-  moonMesh.rotation.x = THREE.MathUtils.degToRad(Math.random() * 180);
-  moonMesh.receiveShadow = true;
-  function animateMoon(currentTime) {
-    const angle = currentTime * 0.5; // Moon orbit speed
-
-    // Calculate position in a basic circular orbit
-    let x = Math.cos(angle) * (radius + offsetX);
-    let z = Math.sin(angle) * (radius + offsetX);
-    let y = 0; // Default y-position
-
-    // Apply tilt using rotation matrix (or quaternion)
-    const tiltMatrix = new THREE.Matrix4();
-    tiltMatrix.makeRotationAxis(
-      new THREE.Vector3(1, 0, 1).normalize(),
-      orbitTilt
-    );
-
-    const position = new THREE.Vector3(x, y, z);
-    position.applyMatrix4(tiltMatrix);
-
-    // Set the moon's position
-    moonMesh.position.set(position.x, position.y, position.z);
-    moonMesh.rotation.y += 0.001;
-  }
-
-  return { moonMesh, animateMoon };
-}
-
 async function createOrbitTech(
   orbitTilt,
   orbitOffset,
@@ -113,7 +73,7 @@ async function createOrbitTech(
         techMesh = gltf.scene.children[0];
         resolve();
       },
-      (progerss) => {},
+      () => {},
       (error) => {
         console.error("Error loading tech mesh", error);
         reject();
@@ -153,7 +113,7 @@ async function createOrbitTech(
   );
   orbitCircle.applyMatrix4(tiltMatrix);
 
-  function animateTech(currentTime, camera) {
+  function animateTech(currentTime) {
     const angle = currentTime * 0.8; // Tech orbit speed
 
     // Calculate position in a basic circular orbit
@@ -228,7 +188,6 @@ export async function createEarth(
   name,
   techUsed
 ) {
-  const radius = 1;
   const earthGroup = new THREE.Group();
   earthGroup.rotation.z = (-23.4 * Math.PI) / 180;
   scene.add(earthGroup);

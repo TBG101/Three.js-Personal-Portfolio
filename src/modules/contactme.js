@@ -1,8 +1,6 @@
-import * as THREE from "three";
+import "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import gsap from "gsap";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { vec2 } from "three/tsl";
 /**
  * @param {any} scene
  * @param {THREE.Vector3} beaconPosition

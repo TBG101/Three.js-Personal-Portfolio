@@ -2,7 +2,6 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { moveAstronaut } from "./movement";
 import { maxY, minY, planetData } from "./constValues";
-import { BokehPass } from "three/examples/jsm/Addons.js";
 
 /**
  * @typedef {Object} Planet
@@ -127,7 +126,7 @@ export function handleClick(
     });
 
     const techStackIntersects = techStackBoundingBoxes.filter(
-      ({ box, worldPosition }) => {
+      ({ box }) => {
         return (
           box.containsPoint(raycaster.ray.origin) ||
           raycaster.ray.intersectsBox(box)

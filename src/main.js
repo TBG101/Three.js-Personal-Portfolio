@@ -10,12 +10,10 @@ import {
   createPlanets,
   randomAsteroids,
   initSlider,
-  initContactSection,
   addStars,
   postProccesing,
 } from "./modules/init";
 import {
-  CSS3DObject,
   CSS3DRenderer,
 } from "three/addons/renderers/CSS3DRenderer.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
@@ -26,7 +24,7 @@ import {
   handleScroll,
   handleClick,
 } from "./modules/eventHandlers";
-import { dialogData, techStackDirection } from "./modules/constValues";
+import { dialogData } from "./modules/constValues";
 import { moveAstronaut } from "./modules/movement";
 import { isInBetween } from "./modules/utils";
 
@@ -35,7 +33,6 @@ import {
   updateTechPosition,
   updateTechRotation,
 } from "./modules/techStack";
-import { all } from "three/tsl";
 import { createBeacon, moveBeacon } from "./modules/contactme";
 
 /**
@@ -141,7 +138,7 @@ const { curve, instancedMesh } = randomAsteroids(scene, 200);
 const techStack = await initTechStackSection(scene, camera);
 let selection = [];
 
-techStack.children.forEach((stack, index) => {
+techStack.children.forEach((stack) => {
   selection.push(stack.children[0]);
 });
 selection.push(beacon);
@@ -170,7 +167,7 @@ slider.addEventListener("input", (event) => {
 });
 
 window.addEventListener("resize", () =>
-  handleResize(camera, renderer, labelRenderer)
+  handleResize(camera, renderer, renderer3D)
 );
 
 window.addEventListener("wheel", (event) =>
