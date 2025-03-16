@@ -13,9 +13,7 @@ import {
   addStars,
   postProccesing,
 } from "./modules/init";
-import {
-  CSS3DRenderer,
-} from "three/addons/renderers/CSS3DRenderer.js";
+import { CSS3DRenderer } from "three/addons/renderers/CSS3DRenderer.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { createDialog } from "./modules/dialog";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -126,9 +124,7 @@ document.getElementById("close-sos").addEventListener("click", () => {
   const element = document.getElementById("sos-interface");
   element.classList.remove("visible");
   element.classList.add("hidden");
-   
 });
-
 
 // astroids
 let animateAstrroProgress = 0;
@@ -205,16 +201,14 @@ dialogData.forEach((dialog) => {
 });
 const startTime = Date.now();
 let currentTime = 0;
+
+const boundingBox = new THREE.Box3().setFromObject(astronaut);
+astroHeight = boundingBox.max.y - boundingBox.min.y;
 // Animation Loop
 function animate() {
   stats.begin();
   mixer.update(0.01);
   currentTime = (currentTime + Date.now() - startTime) / 1000;
-
-  if (astronaut && astroHeight === 0) {
-    const boundingBox = new THREE.Box3().setFromObject(astronaut);
-    astroHeight = boundingBox.max.y - boundingBox.min.y;
-  }
 
   planets.forEach((planet) => {
     if (planet.mesh) planet.mesh.rotation.y += 0.002;
@@ -237,55 +231,51 @@ function animate() {
   instancedMesh.instanceMatrix.needsUpdate = true;
 
   // Dialogs
-  if (astronaut && astroHeight) {
-    dialogData.forEach((dialog) => {
-      const dialogVisible = isInBetween(
-        dialog.dialogPosition.y,
-        astronaut.position.y - 2,
-        astronaut.position.y + 2
-      );
+  dialogData.forEach((dialog) => {
+    const dialogVisible = isInBetween(
+      dialog.dialogPosition.y,
+      astronaut.position.y - 2,
+      astronaut.position.y + 2
+    );
 
-      if (dialogVisible) {
-        if (!allDialogsShown[dialog.id]) {
-          allDialogsShown[dialog.id] = createDialog(scene, dialog.text, {
-            x: dialog.dialogPosition.x,
-            y: dialog.dialogPosition.y + astroHeight / 2,
-            z: astronaut.position.z,
-          });
+    if (dialogVisible) {
+      if (!allDialogsShown[dialog.id]) {
+        allDialogsShown[dialog.id] = createDialog(scene, dialog.text, {
+          x: dialog.dialogPosition.x,
+          y: dialog.dialogPosition.y + astroHeight / 2,
+          z: astronaut.position.z,
+        });
 
-          setTimeout(() => {
-            idsToshow[dialog.id] = true;
-            allDialogsShown[dialog.id].element.className =
-              "user-dialog visible";
-          }, 50);
-        }
-
-        allDialogsShown[dialog.id].position.y +=
-          0.001 * Math.sin(currentTime * 1.5);
-        allDialogsShown[dialog.id].position.x +=
-          0.00025 * Math.cos(currentTime);
-        allDialogsShown[dialog.id].position.z += 0.0005 * Math.sin(currentTime);
-
-        if (lastDialogId !== dialog.id) {
-          lastDialogId = dialog.id;
-          state.canMove = false;
-          moveAstronaut(astronaut, camera, dialog.dialogPosition.y);
-        }
-        if (allDialogsShown[dialog.id] && idsToshow[dialog.id]) {
+        setTimeout(() => {
+          idsToshow[dialog.id] = true;
           allDialogsShown[dialog.id].element.className = "user-dialog visible";
-        }
-      } else {
-        if (allDialogsShown[dialog.id]) {
-          allDialogsShown[dialog.id].element.className = "user-dialog hidden";
-        }
+        }, 50);
       }
 
-      if (lastDialogId === dialog.id && !dialogVisible) {
-        lastDialogId = -1;
-        state.canMove = true;
+      allDialogsShown[dialog.id].position.y +=
+        0.001 * Math.sin(currentTime * 1.5);
+      allDialogsShown[dialog.id].position.x += 0.00025 * Math.cos(currentTime);
+      allDialogsShown[dialog.id].position.z += 0.0005 * Math.sin(currentTime);
+
+      if (lastDialogId !== dialog.id) {
+        lastDialogId = dialog.id;
+        state.canMove = false;
+        moveAstronaut(astronaut, camera, dialog.dialogPosition.y);
       }
-    });
-  }
+      if (allDialogsShown[dialog.id] && idsToshow[dialog.id]) {
+        allDialogsShown[dialog.id].element.className = "user-dialog visible";
+      }
+    } else {
+      if (allDialogsShown[dialog.id]) {
+        allDialogsShown[dialog.id].element.className = "user-dialog hidden";
+      }
+    }
+
+    if (lastDialogId === dialog.id && !dialogVisible) {
+      lastDialogId = -1;
+      state.canMove = true;
+    }
+  });
 
   moveBeacon(beacon, currentTime);
 
@@ -301,8 +291,9 @@ function animate() {
   // labelRenderer.render(scene, camera);
   stats.end();
   // controls.update();
-  requestAnimationFrame(animate);
   composer.render();
+  requestAnimationFrame(animate);
+
 }
 
 animate();

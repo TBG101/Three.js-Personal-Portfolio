@@ -8,9 +8,9 @@
   </head>
   <body>
     <script type="module" src="/src/main.js"></script>
-    <section id="project-A" class="project">
+    <section id="project-template" class="project">
       <div class="project__content">
-        <h1 class="project__title">Astronaut</h1>
+        <h1 class="project__title">https://github.com/TBG101/3D-portfolio</h1>
         <p class="project__description">
           Explore the cosmos with this 3D astronaut model created using
           Three.js. The astronaut comes to life with smooth animations powered
@@ -19,11 +19,6 @@
 
         <h2>Technologies used</h2>
         <ul class="project__stack">
-          <li>HTML</li>
-          <li>CSS</li>
-          <li>JavaScript</li>
-          <li>Three.js</li>
-          <li>GSAP</li>
         </ul>
 
         <div class="container">
@@ -37,35 +32,7 @@
         </div>
       </div>
     </section>
-    <section id="project-B" class="project reverse">
-      <div class="project__content">
-        <h1 class="project__title">Astronaut</h1>
-        <p class="project__description">
-          Explore the cosmos with this 3D astronaut model created using
-          Three.js. The astronaut comes to life with smooth animations powered
-          by the GSAP library.
-        </p>
 
-        <h2>Technologies used</h2>
-        <ul class="project__stack">
-          <li>HTML</li>
-          <li>CSS</li>
-          <li>JavaScript</li>
-          <li>Three.js</li>
-          <li>GSAP</li>
-        </ul>
-
-        <div class="container">
-          <a
-            href="https://github.com/yourusername/astronaut-project"
-            class="project__link btn"
-            target="_blank"
-            rel="noopener noreferrer"
-            >View Code on GitHub 🚀
-          </a>
-        </div>
-      </div>
-    </section>
     <div id="sos-interface" class="hidden">
       <div class="sos-container">
         <h2>🛰️ Beacon Signal Detected</h2>
@@ -76,10 +43,11 @@
         <div class="sos-message">
           <p><strong>🔹 Decoded Message:</strong></p>
           <p>
-            "This is Captain <span id='sos-name'>Zied Harallah</span>, custodian of this celestial waypoint.
-            If you've found this beacon, you are among the explorers of the digital frontier.
-            My mission: to craft immersive experiences and shape the virtual cosmos.
-            The void may be infinite, but connection is within reach. Establish contact below."
+            "This is Captain <span id="sos-name">Zied Harallah</span>, custodian
+            of this celestial waypoint. If you've found this beacon, you are
+            among the explorers of the digital frontier. My mission: to craft
+            immersive experiences and shape the virtual cosmos. The void may be
+            infinite, but connection is within reach. Establish contact below."
           </p>
           <p><strong>Secure Communication Links:</strong></p>
           <ul>
@@ -120,8 +88,9 @@
             class="project__link btn"
             target="_blank"
             rel="noopener noreferrer"
-            style="text-decoration: none;width: 100%;"
-            >🚀 Close Transmission
+            style="text-decoration: none; width: 100%"
+          >
+            🚀 Close Transmission
           </button>
         </div>
       </div>

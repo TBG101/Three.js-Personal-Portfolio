@@ -4,57 +4,7 @@ import { techStack } from "./constValues";
 import { CSS3DObject } from "three/addons/renderers/CSS3DRenderer.js";
 import { techStackDirection } from "./constValues";
 
-export async function initTechStackSection(scene, camera) {
-  const vertexShader = `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-    `;
-
-  const fragmentShader = `
-  uniform sampler2D tex;
-  uniform float glowIntensity;
-  uniform float depthFactor;
-  varying vec2 vUv;
-  
-  void main() {
-      vec4 texColor = texture2D(tex, vUv);
-  
-      // **Enhanced Background Fill (Gradient with Ambient Influence)**
-      vec4 bgColor = mix(vec4(0.05, 0.05, 0.15, 1.0), vec4(0.15, 0.0, 0.3, 1.0), vUv.y);
-  
-      // **Smooth Transparency Handling**
-      float alphaFactor = smoothstep(0.0, 0.5, texColor.a);  // Soft transition
-      vec4 finalColor = mix(bgColor, texColor, alphaFactor); // Improved blending
-  
-      // **Soft Blue Glow Effect**
-      float glow = glowIntensity * texColor.a * 0.8;
-      finalColor.rgb += glow * vec3(0.4, 0.6, 1.0);
-  
-      // **Specular Highlighting for Shine**
-      vec3 lightDir = normalize(vec3(0.6, 0.5, 1.0)); 
-      vec3 viewDir = normalize(vec3(0.0, 0.0, 1.0));
-      vec3 normal = vec3(0.0, 0.0, 1.0);
-  
-      float specular = pow(max(dot(reflect(-lightDir, normal), viewDir), 0.0), 24.0);
-      finalColor.rgb += vec3(1.0) * specular * 0.5; 
-  
-      // **Outer Glow Effect for Neon-like Look**
-      float dist = length(vUv - vec2(0.5));
-      float outerGlow = smoothstep(0.5, 1.0, dist) * glowIntensity * 1.2;
-      finalColor.rgb += outerGlow * vec3(0.2, 0.5, 1.0); 
-  
-      // **Fresnel Edge Effect for Border Glow**
-      float fresnel = pow(1.0 - max(dot(viewDir, normal), 0.0), 3.0);
-      finalColor.rgb += fresnel * vec3(0.3, 0.7, 1.2) * 0.6; 
-  
-      gl_FragColor = finalColor;
-  }
-  
-  `;
-
+export async function initTechStackSection(scene) {
   let techStackGroup = new THREE.Group();
   const loader = new GLTFLoader();
   const half = Math.ceil(techStack.length / 2);
@@ -71,7 +21,7 @@ export async function initTechStackSection(scene, camera) {
   }
 
   async function loadStack(stack, index, isSecondHalf) {
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       const path = stack.icon.split("/").slice(0, -1).join("/");
       const name = stack.icon.split("/").pop();
       loader.setPath(path + "/");

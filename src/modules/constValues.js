@@ -130,6 +130,7 @@ const techStack = [
     icon: "/models/techstack/graphql.glb",
   },
 ];
+
 const techStackDirection = techStack.reduce((acc, tech, index) => {
   acc[index] = {};
   acc[index].direction = Math.random() > 0.5 ? 1 : -1;
@@ -137,16 +138,18 @@ const techStackDirection = techStack.reduce((acc, tech, index) => {
   return acc;
 }, []);
 
-
 const offsetZ = -10;
 const planetData = [
   {
     size: 15,
     position: { x: 35, y: 90, z: offsetZ * 3 },
-    name: "Project A",
-    documentSectionEl: document.getElementById("project-A"),
+    name: "3D Portfolio",
+    documentSectionEl: document.getElementById("3D Portfolio"),
+
     createFunction: createEarth,
-    tech: ["React.js", "Node.js", "MongoDB"],
+    tech: ["JavaScript", "Three.js", "GSAP"],
+    description:
+      "A 3D portfolio website that showcases my projects and skills.",
   },
   {
     size: 30,
@@ -155,18 +158,43 @@ const planetData = [
       y: 135,
       z: offsetZ * 5,
     },
-    name: "Project B",
-    documentSectionEl: document.getElementById("project-B"),
+    name: "E-commerce Website",
+    documentSectionEl: document.getElementById("E-commerce Website"),
     createFunction: createMars,
-    tech: ["Flutter", "Firebase"],
+    tech: ["Next.js", "MongoDB", "Tailwind"],
+    description:
+      "An e-commerce website that allows users to buy and sell products.",
   },
   {
     size: 25,
     position: { x: 50, y: 175, z: offsetZ * 4 },
-    name: "Project C",
-    documentSectionEl: document.getElementById("project-C"),
+    name: "Music player app",
+    documentSectionEl: document.getElementById("Music player app"),
     createFunction: createEarth,
-    tech: ["React.js", "Node.js", "MongoDB"],
+    description:
+      "A music player app that allows users to listen to their favorite songs. You also download podcasts or music from youtube.",
+    tech: ["Flutter", "FFmpeg"],
+  },
+  {
+    size: 25,
+    position: { x: 50, y: 240, z: offsetZ * 4 },
+    name: "PC remote control",
+    documentSectionEl: document.getElementById("Music player app"),
+    createFunction: createEarth,
+    description:
+      "A PC remote control app that allows users to control their PC from their phone.",
+    tech: ["Flutter", "Rust"],
+  },
+  {
+    size: 25,
+    position: { x: 50, y: 340, z: offsetZ * 4 },
+    name: "Kick VOD Downloader",
+    documentSectionEl: document.getElementById("Music player app"),
+    createFunction: createEarth,
+
+    description:
+      "A VOD downloader app that allows users to download videos from the streaming platfrom kick.com. ",
+    tech: ["Flutter", "FFmpeg"],
   },
 ];
 

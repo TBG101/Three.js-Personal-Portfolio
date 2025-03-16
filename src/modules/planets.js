@@ -54,6 +54,32 @@ function getFresnelMat({ rimHex = 0x0088ff, facingHex = 0x000000 } = {}) {
   return fresnelMat;
 }
 
+function createDetailedDescription(name, techUsed, description, index) {
+  const template = document.getElementById("project-template");
+  const clone = template.cloneNode(true);
+  const projectTitle = clone.children[0].children[0]; // h1
+  const projectDescription = clone.children[0].children[1]; // p
+  const techStackTitle = clone.children[0].children[2]; // h2
+  const techStackList = clone.children[0].children[3]; // ul
+  const viewProject = clone.children[0].children[4].children[0]; // a
+
+  projectTitle.textContent = name;
+  projectDescription.textContent = description;
+  techStackTitle.textContent = "Tech Stack";
+  techUsed.forEach((tech) => {
+    const li = document.createElement("li");
+    li.textContent = tech;
+    techStackList.appendChild(li);
+  });
+  viewProject.href = `#${name.replace(/\s/g, "")}`;
+  clone.id = name;
+  if (index % 2 == 1) {
+    clone.classList.add("reverse");
+  }
+
+  document.body.appendChild(clone);
+}
+
 async function createOrbitTech(
   orbitTilt,
   orbitOffset,
@@ -62,7 +88,6 @@ async function createOrbitTech(
   offsetX = 0,
   techPath = "./public/models/techstack/cpp.glb"
 ) {
-  
   const loader = new GLTFLoader();
   /**@type {THREE.Object3D<Object3DEventMap>} */
   let techMesh = null;
@@ -186,7 +211,9 @@ export async function createEarth(
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
-  techUsed
+  techUsed,
+  description,
+  index
 ) {
   const earthGroup = new THREE.Group();
   earthGroup.rotation.z = (-23.4 * Math.PI) / 180;
@@ -250,6 +277,8 @@ export async function createEarth(
     scale: 0.1,
   });
 
+  createDetailedDescription(name, techUsed, description, index);
+
   return {
     mesh: earthMesh,
     lights: lightsMesh,
@@ -267,7 +296,9 @@ export async function createMars(
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
-  techUsed
+  techUsed,
+  description,
+  index
 ) {
   const marsGroup = new THREE.Group();
   marsGroup.rotation.z = (-23.4 * Math.PI) / 180;
@@ -303,6 +334,7 @@ export async function createMars(
     planetSize: marsRadius,
     scale: 0.1,
   });
+  createDetailedDescription(name, techUsed, description,index);
 
   return {
     mesh: marsMesh,

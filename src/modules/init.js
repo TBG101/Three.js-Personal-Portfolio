@@ -25,7 +25,7 @@ export function initCamera() {
     60,
     window.innerWidth / window.innerHeight,
     0.1,
-    2000
+    1000
   );
   camera.position.set(0, 0, 50);
   const light = new THREE.PointLight(0xffffff, 500, 50);
@@ -111,14 +111,20 @@ export async function loadAstronaut(scene) {
 export async function createPlanets(scene) {
   const planets = [];
   await planetData.forEach(
-    async ({ size, position, name, createFunction, tech: techUsed }) => {
+    async (
+      { size, position, name, createFunction, tech: techUsed, description },
+      index
+    ) => {
       const planet = await createFunction(
         scene,
         position,
         size,
         name,
-        techUsed
+        techUsed,
+        description,
+        index
       );
+      planetData[index].documentSectionEl = document.getElementById(name);
       planets.push(planet);
     }
   );
@@ -161,7 +167,7 @@ export function addStar(scene, options = {}) {
   return star; // Return the star object for further manipulation
 }
 
-export function addStars(scene, count = 1000, options = {}) {
+export function addStars(scene, count = 750, options = {}) {
   const {
     size = 0.25, // Default star size
     spread = 500, // Default spread range
@@ -179,9 +185,9 @@ export function addStars(scene, count = 1000, options = {}) {
   const dummy = new THREE.Object3D();
 
   for (let i = 0; i < count; i++) {
-    const [x, y, z] = Array(3)
-      .fill()
-      .map(() => THREE.MathUtils.randFloatSpread(spread));
+    const x = THREE.MathUtils.randFloatSpread(500);
+    const y = THREE.MathUtils.randInt(-50, spread);
+    const z = THREE.MathUtils.randInt(-15, (-1 * spread) / 2);
 
     dummy.position.set(x, y, z);
     dummy.rotation.set(
@@ -333,12 +339,12 @@ export function postProccesing(scene, camera, renderer, selection) {
   );
 
   const ssaaPass = new SSAARenderPass(scene, camera);
-  ssaaPass.sampleLevel = 2;
+  ssaaPass.sampleLevel = 1;
 
   let bokehPass = new BokehPass(scene, camera, {
     focus: 13.5,
-    aperture: 0.00001,
-    maxblur: 0.004,
+    aperture: 0.000001,
+    maxblur: 0.03,
   });
 
   const afterimage = new AfterimagePass();
@@ -346,7 +352,7 @@ export function postProccesing(scene, camera, renderer, selection) {
 
   composer.addPass(renderPass);
   composer.addPass(ssaaPass);
-  composer.addPass(smaaPass);
+  // composer.addPass(smaaPass);
   composer.addPass(bloomEffect);
   composer.addPass(bokehPass);
   composer.addPass(outlinePass);
