@@ -1,6 +1,5 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { astronautPath, maxY, minY } from "./constValues";
+import { maxY, minY } from "./constValues";
 import { planetData } from "./constValues";
 import { CSS3DObject } from "three/addons/renderers/CSS3DRenderer.js";
 import { contactData } from "./constValues";
@@ -12,10 +11,10 @@ import {
   OutlinePass,
   OutputPass,
   RenderPass,
-  SMAAPass,
   UnrealBloomPass,
 } from "three/examples/jsm/Addons.js";
 import { SSAARenderPass } from "three/addons/postprocessing/SSAARenderPass.js";
+
 export function initScene() {
   return new THREE.Scene();
 }
@@ -76,31 +75,6 @@ export function initSlider(astronaut) {
   slider.style.height = "20px";
   slider.style.zIndex = "1000";
   return document.body.appendChild(slider);
-}
-
-export async function loadAstronaut(scene) {
-  return new Promise((resolve, reject) => {
-    const loader = new GLTFLoader();
-    loader.load(
-      astronautPath,
-      (gltf) => {
-        const astronaut = gltf.scene;
-        astronaut.position.set(0, -5, 0);
-        astronaut.scale.set(1, 1, 1);
-
-        // Ensure textures update properly
-        astronaut.traverse((child) => {
-          if (child.isMesh) {
-            child.material.needsUpdate = true;
-          }
-        });
-        scene.add(astronaut);
-        resolve({ astronaut, animations: gltf.animations });
-      },
-      () => {},
-      (error) => reject(error)
-    );
-  });
 }
 
 /**
@@ -333,10 +307,10 @@ export function postProccesing(scene, camera, renderer, selection) {
   outlinePass.hiddenEdgeColor.set(0x000000);
   outlinePass.selectedObjects = selection;
 
-  const smaaPass = new SMAAPass(
-    window.innerWidth * renderer.getPixelRatio(),
-    window.innerHeight * renderer.getPixelRatio()
-  );
+  // const smaaPass = new SMAAPass(
+  //   window.innerWidth * renderer.getPixelRatio(),
+  //   window.innerHeight * renderer.getPixelRatio()
+  // );
 
   const ssaaPass = new SSAARenderPass(scene, camera);
   ssaaPass.sampleLevel = 1;

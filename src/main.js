@@ -6,7 +6,6 @@ import {
   initCamera,
   initRenderer,
   initLights,
-  loadAstronaut,
   createPlanets,
   randomAsteroids,
   initSlider,
@@ -23,8 +22,9 @@ import {
   handleClick,
 } from "./modules/eventHandlers";
 import { dialogData } from "./modules/constValues";
-import { moveAstronaut } from "./modules/movement";
 import { isInBetween } from "./modules/utils";
+import { moveAstronaut, updateAstronaut } from "./modules/astronaut";
+
 
 import {
   initTechStackSection,
@@ -32,6 +32,7 @@ import {
   updateTechRotation,
 } from "./modules/techStack";
 import { createBeacon, moveBeacon } from "./modules/contactme";
+import { loadAstronaut } from "./modules/astronaut";
 
 /**
  * keep hold of the current focus
@@ -158,7 +159,9 @@ const slider = initSlider(astronaut, camera);
 // Event Listeners
 slider.addEventListener("input", (event) => {
   if (astronaut) {
-    moveAstronaut(astronaut, camera, parseInt(event.target.value));
+    const targetPosition = new THREE.Vector3().copy(astronaut.position);
+    targetPosition.y = event.target.value;
+    moveAstronaut(astronaut, camera, targetPosition);
   }
 });
 
@@ -260,7 +263,10 @@ function animate() {
       if (lastDialogId !== dialog.id) {
         lastDialogId = dialog.id;
         state.canMove = false;
-        moveAstronaut(astronaut, camera, dialog.dialogPosition.y);
+        const targetPosition = new THREE.Vector3().copy(astronaut.position);
+        targetPosition.y = dialog.dialogPosition.y;
+
+        moveAstronaut(astronaut, camera, targetPosition);
       }
       if (allDialogsShown[dialog.id] && idsToshow[dialog.id]) {
         allDialogsShown[dialog.id].element.className = "user-dialog visible";
@@ -285,6 +291,9 @@ function animate() {
     updateTechRotation(stack.children[0], currentTime, index);
   });
 
+  updateAstronaut(astronaut,camera,state);
+  
+
   // render
   renderer.render(scene, camera);
   renderer3D.render(scene, camera);
@@ -293,7 +302,6 @@ function animate() {
   // controls.update();
   composer.render();
   requestAnimationFrame(animate);
-
 }
 
 animate();

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import gsap from "gsap";
-import { moveAstronaut } from "./movement";
 import { maxY, minY, planetData } from "./constValues";
+import { moveAstronaut } from "./astronaut";
 
 /**
  * @typedef {Object} Planet
@@ -74,7 +74,16 @@ export function handleScroll(event, astronaut, camera, state, bokehPass) {
   const deltaY = event.deltaY * -0.045;
   const newAstronautY = astronaut.position.y + deltaY;
   const clampedAstronautY = Math.max(minY, Math.min(maxY, newAstronautY));
-  moveAstronaut(astronaut, camera, clampedAstronautY);
+  moveAstronaut(
+    astronaut,
+    camera,
+    new THREE.Vector3(
+      astronaut.position.x,
+      clampedAstronautY,
+      astronaut.position.z
+    )
+  );
+  // moveAstronaut(astronaut, camera, clampedAstronautY);
   state.currentFocus = -1;
 }
 
@@ -109,7 +118,7 @@ export function handleClick(
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
-
+    // Check if the ray intersects with the beacon
     const beaconIntersects = raycaster.intersectObjects([beacon]);
     if (beaconIntersects.length > 0) {
       const element = document.getElementById("sos-interface");
@@ -118,6 +127,7 @@ export function handleClick(
       return;
     }
 
+    // Check if the ray intersects with the techStacks
     const techStackBoundingBoxes = techStacks.children.map((child) => {
       const box = new THREE.Box3().setFromObject(child);
       const worldPosition = new THREE.Vector3();
@@ -125,14 +135,12 @@ export function handleClick(
       return { box, child, worldPosition };
     });
 
-    const techStackIntersects = techStackBoundingBoxes.filter(
-      ({ box }) => {
-        return (
-          box.containsPoint(raycaster.ray.origin) ||
-          raycaster.ray.intersectsBox(box)
-        );
-      }
-    );
+    const techStackIntersects = techStackBoundingBoxes.filter(({ box }) => {
+      return (
+        box.containsPoint(raycaster.ray.origin) ||
+        raycaster.ray.intersectsBox(box)
+      );
+    });
 
     if (techStackIntersects.length > 0) {
       const techStackGroup = techStackIntersects[0].child;
@@ -152,6 +160,7 @@ export function handleClick(
 
   const intersects = raycaster.intersectObjects(meshIntersects);
 
+  // If the ray intersects with a planet
   if (intersects.length > 0 && !gsap.isTweening(camera.position)) {
     // get the planet group
     /** @type {THREE.Group<THREE.Object3DEventMap>} group **/
@@ -193,6 +202,7 @@ export function handleClick(
       planet.documentSectionEl.classList.remove("visible");
       planet.documentSectionEl.classList.add("hidden");
     });
+    
     gsap.to(camera.position, {
       x: group.position.x + offsetX * reverse,
       y: group.position.y,
