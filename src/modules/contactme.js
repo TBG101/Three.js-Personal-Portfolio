@@ -32,7 +32,7 @@ export async function createBeacon(scene, beaconPosition) {
 }
 
 export async function moveBeacon(beacon, currentTime) {
-  beacon.position.y = Math.sin(currentTime) * 0.2 + 233;
+  beacon.position.y = Math.sin(currentTime) * 0.2 + 380;
   beacon.position.x = Math.cos(currentTime) * 0.4 - 10;
   beacon.position.z = Math.sin(currentTime) * 0.8 - 15;
 

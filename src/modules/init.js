@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import { maxY, minY } from "./constValues";
 import { planetData } from "./constValues";
-import { CSS3DObject } from "three/addons/renderers/CSS3DRenderer.js";
-import { contactData } from "./constValues";
 
 import {
   AfterimagePass,
@@ -14,6 +12,7 @@ import {
   UnrealBloomPass,
 } from "three/examples/jsm/Addons.js";
 import { SSAARenderPass } from "three/addons/postprocessing/SSAARenderPass.js";
+import { createDetailedDescription } from "./planets";
 
 export function initScene() {
   return new THREE.Scene();
@@ -98,6 +97,8 @@ export async function createPlanets(scene) {
         description,
         index
       );
+      createDetailedDescription(name, techUsed, description, index);
+
       planetData[index].documentSectionEl = document.getElementById(name);
       planets.push(planet);
     }
@@ -217,69 +218,6 @@ export function randomAsteroids(scene, count = 50, spread = 250) {
   ]);
 
   return { curve, instancedMesh };
-}
-
-export function initContactSection(scene) {
-  function createContactSection(contactData) {
-    const container = document.createElement("div");
-    container.className = "contact-section";
-
-    const titleDiv = document.createElement("div");
-    titleDiv.className = "contact-title";
-    titleDiv.textContent = contactData.title;
-    container.appendChild(titleDiv);
-
-    const descriptionDiv = document.createElement("div");
-    descriptionDiv.className = "contact-description";
-    descriptionDiv.textContent = contactData.description;
-    container.appendChild(descriptionDiv);
-
-    const emailDiv = document.createElement("div");
-    emailDiv.className = "contact-email";
-    const emailLink = document.createElement("a");
-    emailLink.href = `mailto:${contactData.email}`;
-    emailLink.textContent = `Email: ${contactData.email}`;
-    emailDiv.appendChild(emailLink);
-    container.appendChild(emailDiv);
-
-    const linkedInDiv = document.createElement("div");
-    linkedInDiv.className = "contact-linkedin";
-    const linkedInLink = document.createElement("a");
-    linkedInLink.target = "_blank";
-    linkedInLink.href = contactData.linkedIn;
-    const linkedInImg = document.createElement("img");
-    linkedInImg.src = "LinkedIn.png";
-    linkedInImg.height = 40;
-    linkedInLink.appendChild(linkedInImg);
-    linkedInDiv.appendChild(linkedInLink);
-
-    const githubDiv = document.createElement("div");
-    githubDiv.className = "contact-github";
-    const githubLink = document.createElement("a");
-    githubLink.target = "_blank";
-    githubLink.href = contactData.github;
-    const githubImg = document.createElement("img");
-    githubImg.src = "./GitHub.png";
-    githubImg.height = 40;
-    githubLink.appendChild(githubImg);
-    githubDiv.appendChild(githubLink);
-
-    const socials = document.createElement("div");
-    socials.className = "contact-socials";
-    socials.appendChild(linkedInDiv);
-    socials.appendChild(githubDiv);
-    container.appendChild(emailDiv);
-    container.appendChild(socials);
-
-    return new CSS3DObject(container);
-  }
-
-  const contactSection = createContactSection(contactData);
-  contactSection.position.set(-7.5, 210, 0);
-  contactSection.scale.setScalar(0.013);
-  contactSection.rotateY((Math.PI * 6) / 180);
-
-  scene.add(contactSection);
 }
 
 export function postProccesing(scene, camera, renderer, selection) {

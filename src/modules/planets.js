@@ -54,7 +54,7 @@ function getFresnelMat({ rimHex = 0x0088ff, facingHex = 0x000000 } = {}) {
   return fresnelMat;
 }
 
-function createDetailedDescription(name, techUsed, description, index) {
+export function createDetailedDescription(name, techUsed, description, index) {
   const template = document.getElementById("project-template");
   const clone = template.cloneNode(true);
   const projectTitle = clone.children[0].children[0]; // h1
@@ -212,8 +212,6 @@ export async function createEarth(
   size,
   name,
   techUsed,
-  description,
-  index
 ) {
   const earthGroup = new THREE.Group();
   earthGroup.rotation.z = (-23.4 * Math.PI) / 180;
@@ -277,7 +275,6 @@ export async function createEarth(
     scale: 0.1,
   });
 
-  createDetailedDescription(name, techUsed, description, index);
 
   return {
     mesh: earthMesh,
@@ -297,8 +294,7 @@ export async function createMars(
   size,
   name,
   techUsed,
-  description,
-  index
+
 ) {
   const marsGroup = new THREE.Group();
   marsGroup.rotation.z = (-23.4 * Math.PI) / 180;
@@ -334,7 +330,6 @@ export async function createMars(
     planetSize: marsRadius,
     scale: 0.1,
   });
-  createDetailedDescription(name, techUsed, description,index);
 
   return {
     mesh: marsMesh,

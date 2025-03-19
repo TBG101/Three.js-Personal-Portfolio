@@ -138,85 +138,69 @@ const techStackDirection = techStack.reduce((acc, tech, index) => {
   return acc;
 }, []);
 
-const offsetZ = -10;
+const offsetZ = -20;
 const planetData = [
   {
     size: 15,
-    position: { x: 35, y: 90, z: offsetZ * 3 },
+    position: { x: 35, y: 80, z: offsetZ * 3 },
     name: "3D Portfolio",
     documentSectionEl: document.getElementById("3D Portfolio"),
-
     createFunction: createEarth,
     tech: ["JavaScript", "Three.js", "GSAP"],
     description:
-      "A 3D portfolio website that showcases my projects and skills.",
+      "An interactive 3D portfolio showcasing my projects, skills, and experience in a visually immersive way.",
   },
   {
     size: 30,
-    position: {
-      x: -55,
-      y: 135,
-      z: offsetZ * 5,
-    },
+    position: { x: -55, y: 150, z: offsetZ * 5 },
     name: "E-commerce Website",
     documentSectionEl: document.getElementById("E-commerce Website"),
     createFunction: createMars,
     tech: ["Next.js", "MongoDB", "Tailwind"],
     description:
-      "An e-commerce website that allows users to buy and sell products.",
+      "A full-featured e-commerce platform with secure authentication, product management, and seamless checkout experience.",
   },
   {
     size: 25,
-    position: { x: 50, y: 175, z: offsetZ * 4 },
-    name: "Music player app",
+    position: { x: 50, y: 220, z: offsetZ * 4 },
+    name: "Music Player App",
     documentSectionEl: document.getElementById("Music player app"),
     createFunction: createEarth,
-    description:
-      "A music player app that allows users to listen to their favorite songs. You also download podcasts or music from youtube.",
     tech: ["Flutter", "FFmpeg"],
+    description:
+      "A sleek and feature-rich music player app with offline support, YouTube audio downloads, and podcast streaming.",
   },
   {
     size: 25,
-    position: { x: 50, y: 240, z: offsetZ * 4 },
-    name: "PC remote control",
-    documentSectionEl: document.getElementById("Music player app"),
+    position: { x: -50, y: 290, z: offsetZ * 4 },
+    name: "PC Remote Control",
+    documentSectionEl: document.getElementById("PC Remote Control"),
     createFunction: createEarth,
-    description:
-      "A PC remote control app that allows users to control their PC from their phone.",
     tech: ["Flutter", "Rust"],
+    description:
+      "A remote control application that allows users to manage their PC wirelessly using their mobile device with ease.",
   },
   {
     size: 25,
-    position: { x: 50, y: 340, z: offsetZ * 4 },
+    position: { x: 55, y: 360, z: offsetZ * 4 },
     name: "Kick VOD Downloader",
-    documentSectionEl: document.getElementById("Music player app"),
+    documentSectionEl: document.getElementById("Kick VOD Downloader"),
     createFunction: createEarth,
-
-    description:
-      "A VOD downloader app that allows users to download videos from the streaming platfrom kick.com. ",
     tech: ["Flutter", "FFmpeg"],
+    description:
+      "A powerful tool for downloading and saving video-on-demand content from Kick.com for offline viewing.",
   },
 ];
 
-const contactData = {
-  title: "Contact Me",
-  description:
-    "Feel free to reach out if you want to collaborate or have any questions!",
-  email: "ziedhrz@gmail.com",
-  linkedIn: "https://www.linkedin.com/in/zied-harzallah",
-  github: "https://github.com/TBG101",
-};
-
 const astronautPath = "./astrov2.glb";
 const minY = -5;
-const maxY = 250;
+const maxY = 400;
 export {
   dialogData,
   astronautPath,
   planetData,
   techStack,
   techStackDirection,
-  contactData,
   minY,
   maxY,
 };

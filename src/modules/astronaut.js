@@ -35,15 +35,26 @@ export function moveAstronaut(astronaut, camera, targetPosition) {
   astronautVelocity = MathUtils.clamp(astronautVelocity, -0.1, 0.1);
 }
 
-export function updateAstronaut(astronaut, camera, state) {
-  if (astronaut.position.y < -0.5) {
-    astronaut.astronautVelocity = 0;
-  } else if (astronaut.position.y > 0.5) {
-    astronaut.astronautVelocity = 0;
+export function updateAstronaut(astronaut, camera, state, deltaTime) {
+  if (astronautVelocity < 0.0005 && astronautVelocity > -0.0005) {
+    astronautVelocity = 0;
+    return;
   }
+  const delta = deltaTime * 0.05;
 
-  if (astronautVelocity > 0) astronautVelocity -= 0.0001;
-  if (astronautVelocity < 0) astronautVelocity += 0.0001;
+  if (astronautVelocity > 0) {
+    if (astronautVelocity - delta <= 0) {
+      astronautVelocity = 0;
+    } else {
+      astronautVelocity -= delta;
+    }
+  } else if (astronautVelocity < 0) {
+    if (astronautVelocity + delta >= 0) {
+      astronautVelocity = 0;
+    } else {
+      astronautVelocity += delta;
+    }
+  }
 
   if (
     state.currentFocus == -2 ||
@@ -52,9 +63,18 @@ export function updateAstronaut(astronaut, camera, state) {
     state.contactShown
   ) {
     astronautVelocity *= 0.9;
-  }
-
-  astronaut.position.y += astronautVelocity;
+    astronaut.position.y += astronautVelocity;
+  } else astronaut.position.y += astronautVelocity;
   // check if the astronaut is in focus to not mess up the camera smooth movement
   if (state.currentFocus == -1) camera.position.y = astronaut.position.y + 2;
+
+  console.log("velocity", astronautVelocity);
+  console.log("astronaut position", deltaTime);
+}
+
+export function getAstronautVelocity() {
+  astronautVelocity;
+}
+export function setAstronautVelocity(value) {
+  astronautVelocity = value;
 }

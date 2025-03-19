@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import gsap from "gsap";
-
 import {
   initScene,
   initCamera,
@@ -15,7 +14,6 @@ import {
 import { CSS3DRenderer } from "three/addons/renderers/CSS3DRenderer.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { createDialog } from "./modules/dialog";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import {
   handleResize,
   handleScroll,
@@ -23,8 +21,7 @@ import {
 } from "./modules/eventHandlers";
 import { dialogData } from "./modules/constValues";
 import { isInBetween } from "./modules/utils";
-import { moveAstronaut, updateAstronaut } from "./modules/astronaut";
-
+import { setAstronautVelocity, updateAstronaut } from "./modules/astronaut";
 
 import {
   initTechStackSection,
@@ -44,6 +41,7 @@ const state = {
   canMove: true,
   currentFocus: -1, // -1 means on astronaut, -2 means on dialog, n means on planet n,
   contactShown: false,
+  goToSection: -1, // -1 mean no section, n mean go to section n
 };
 
 // Scene Setup
@@ -56,21 +54,10 @@ const renderer3D = new CSS3DRenderer();
 renderer3D.setSize(window.innerWidth, window.innerHeight);
 renderer3D.domElement.id = "renderer3D";
 
-// Ensure pointer events for all children are none
-renderer3D.domElement.childNodes.forEach((child) => {
-  child.style.pointerEvents = "none";
-});
-
 // Append to DOM
 document.body.appendChild(renderer3D.domElement);
 document.body.appendChild(renderer.domElement);
 // document.body.appendChild(labelRenderer.domElement);
-
-// // orbit control
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.25;
-controls.enableZoom = false;
 
 // Helpers
 const axesHelper = new THREE.AxesHelper(5);
@@ -119,7 +106,7 @@ const { astronaut, animations } = await loadAstronaut(scene);
 const planets = await createPlanets(scene, camera);
 
 // Contact Section
-const beacon = await createBeacon(scene, new THREE.Vector3(-10, 233, -15));
+const beacon = await createBeacon(scene, new THREE.Vector3(-10, 400, -15));
 document.getElementById("close-sos").addEventListener("click", () => {
   state.contactShown = false;
   const element = document.getElementById("sos-interface");
@@ -156,12 +143,41 @@ document.body.appendChild(stats.dom);
 // Slider for Astronaut Position Y
 const slider = initSlider(astronaut, camera);
 
+// function for navigation
+
+let isMovingToSection = false;
+const handleGoto = (minY, maxY) => {
+  const isInside = isInBetween(astronaut.position.y, minY, maxY);
+  if (isInside && isMovingToSection === false) {
+    state.goToSection = -1;
+    return;
+  }
+
+  isMovingToSection = true;
+  const targetPosition = new THREE.Vector3().copy(astronaut.position);
+  targetPosition.y = minY + 1;
+  setAstronautVelocity(0);
+  astronaut.position.y = astronaut.position.lerp(targetPosition, 0.05).y;
+  camera.position.y = astronaut.position.y + 2;
+
+  if (
+    isInBetween(
+      astronaut.position.y,
+      targetPosition.y - 0.1,
+      targetPosition.y + 0.1
+    )
+  ) {
+    isMovingToSection = false;
+  }
+};
+
 // Event Listeners
 slider.addEventListener("input", (event) => {
   if (astronaut) {
     const targetPosition = new THREE.Vector3().copy(astronaut.position);
     targetPosition.y = event.target.value;
-    moveAstronaut(astronaut, camera, targetPosition);
+    astronaut.position.y = targetPosition.y;
+    camera.position.y = targetPosition.y + 2;
   }
 });
 
@@ -177,6 +193,16 @@ window.addEventListener("click", (event) =>
   handleClick(event, camera, planets, state, techStack, bokehPass, beacon)
 );
 
+const navItems = document.querySelectorAll(".nav-item");
+navItems.forEach((navItem, index) => {
+  navItem.addEventListener("click", () => {
+    navItems.forEach((item) => item.classList.remove("active"));
+    navItem.classList.add("active");
+    state.goToSection = index;
+  });
+});
+
+// Camera Animation to astronaut
 gsap.to(camera.position, {
   ease: "power4.out",
   duration: 1,
@@ -191,6 +217,11 @@ console.log(animation);
 const mixer = new THREE.AnimationMixer(astronaut);
 const action = mixer.clipAction(animation);
 action.play();
+
+// pointer events for all children are none
+renderer3D.domElement.childNodes.forEach((child) => {
+  child.style.pointerEvents = "none";
+});
 
 // animate needed data
 /** @type {CSS3DObject[]} **/
@@ -207,12 +238,22 @@ let currentTime = 0;
 
 const boundingBox = new THREE.Box3().setFromObject(astronaut);
 astroHeight = boundingBox.max.y - boundingBox.min.y;
+const clock = new THREE.Clock();
 // Animation Loop
 function animate() {
   stats.begin();
   mixer.update(0.01);
   currentTime = (currentTime + Date.now() - startTime) / 1000;
+  const deltaTime = clock.getDelta();
 
+  if (state.goToSection > -1) {
+    if (state.goToSection === 3) handleGoto(-5, 40);
+    if (state.goToSection === 2) handleGoto(41, 100);
+    if (state.goToSection === 1) handleGoto(101, 200);
+    if (state.goToSection === 0) handleGoto(350, 400);
+  }
+
+  // planets
   planets.forEach((planet) => {
     if (planet.mesh) planet.mesh.rotation.y += 0.002;
     if (planet.lights) planet.lights.rotation.y += 0.002;
@@ -225,6 +266,7 @@ function animate() {
     }
   });
 
+  // stars
   moveStars(currentTime);
 
   // asteroids
@@ -233,56 +275,7 @@ function animate() {
   instancedMesh.position.copy(position);
   instancedMesh.instanceMatrix.needsUpdate = true;
 
-  // Dialogs
-  dialogData.forEach((dialog) => {
-    const dialogVisible = isInBetween(
-      dialog.dialogPosition.y,
-      astronaut.position.y - 2,
-      astronaut.position.y + 2
-    );
-
-    if (dialogVisible) {
-      if (!allDialogsShown[dialog.id]) {
-        allDialogsShown[dialog.id] = createDialog(scene, dialog.text, {
-          x: dialog.dialogPosition.x,
-          y: dialog.dialogPosition.y + astroHeight / 2,
-          z: astronaut.position.z,
-        });
-
-        setTimeout(() => {
-          idsToshow[dialog.id] = true;
-          allDialogsShown[dialog.id].element.className = "user-dialog visible";
-        }, 50);
-      }
-
-      allDialogsShown[dialog.id].position.y +=
-        0.001 * Math.sin(currentTime * 1.5);
-      allDialogsShown[dialog.id].position.x += 0.00025 * Math.cos(currentTime);
-      allDialogsShown[dialog.id].position.z += 0.0005 * Math.sin(currentTime);
-
-      if (lastDialogId !== dialog.id) {
-        lastDialogId = dialog.id;
-        state.canMove = false;
-        const targetPosition = new THREE.Vector3().copy(astronaut.position);
-        targetPosition.y = dialog.dialogPosition.y;
-
-        moveAstronaut(astronaut, camera, targetPosition);
-      }
-      if (allDialogsShown[dialog.id] && idsToshow[dialog.id]) {
-        allDialogsShown[dialog.id].element.className = "user-dialog visible";
-      }
-    } else {
-      if (allDialogsShown[dialog.id]) {
-        allDialogsShown[dialog.id].element.className = "user-dialog hidden";
-      }
-    }
-
-    if (lastDialogId === dialog.id && !dialogVisible) {
-      lastDialogId = -1;
-      state.canMove = true;
-    }
-  });
-
+  // beacon
   moveBeacon(beacon, currentTime);
 
   // techStack
@@ -291,16 +284,84 @@ function animate() {
     updateTechRotation(stack.children[0], currentTime, index);
   });
 
-  updateAstronaut(astronaut,camera,state);
-  
+  if (state.goToSection === -1) {
+    if (state.canMove) {
+      // astronaut
+      updateAstronaut(astronaut, camera, state, deltaTime);
+    }
+
+    // Dialogs
+    dialogData.forEach((dialog) => {
+      const dialogVisible = isInBetween(
+        dialog.dialogPosition.y,
+        astronaut.position.y - 2,
+        astronaut.position.y + 2
+      );
+
+      if (dialogVisible) {
+        // first time dialog is shown
+        if (!allDialogsShown[dialog.id]) {
+          allDialogsShown[dialog.id] = createDialog(scene, dialog.text, {
+            x: dialog.dialogPosition.x,
+            y: dialog.dialogPosition.y + astroHeight / 2,
+            z: astronaut.position.z,
+          });
+
+          setTimeout(() => {
+            idsToshow[dialog.id] = true;
+            allDialogsShown[dialog.id].element.className =
+              "user-dialog visible";
+          }, 50);
+        }
+
+        // animate dialog
+        allDialogsShown[dialog.id].position.y +=
+          0.001 * Math.sin(currentTime * 1.5);
+        allDialogsShown[dialog.id].position.x +=
+          0.00025 * Math.cos(currentTime);
+        allDialogsShown[dialog.id].position.z += 0.0005 * Math.sin(currentTime);
+
+        // set the last dialog id
+        if (lastDialogId !== dialog.id) {
+          lastDialogId = dialog.id;
+          state.canMove = false;
+        }
+        // move astronaut to dialog
+        if (state.canMove === false) {
+          const targetPosition = new THREE.Vector3().copy(astronaut.position);
+          targetPosition.y = dialog.dialogPosition.y - 1;
+          setAstronautVelocity(0);
+          astronaut.position.y = astronaut.position.lerp(
+            targetPosition,
+            0.05
+          ).y;
+          camera.position.y = astronaut.position.y + 2;
+        }
+
+        if (allDialogsShown[dialog.id] && idsToshow[dialog.id]) {
+          allDialogsShown[dialog.id].element.className = "user-dialog visible";
+        }
+      } else {
+        if (allDialogsShown[dialog.id]) {
+          allDialogsShown[dialog.id].element.className = "user-dialog hidden";
+        }
+      }
+
+      if (lastDialogId === dialog.id && !dialogVisible) {
+        lastDialogId = -1;
+        state.canMove = true;
+      }
+    });
+  }
 
   // render
   renderer.render(scene, camera);
   renderer3D.render(scene, camera);
   // labelRenderer.render(scene, camera);
-  stats.end();
   // controls.update();
   composer.render();
+  stats.end();
+
   requestAnimationFrame(animate);
 }
 

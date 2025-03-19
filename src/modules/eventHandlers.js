@@ -44,7 +44,6 @@ export function handleScroll(event, astronaut, camera, state, bokehPass) {
   if (gsap.isTweening(camera.position)) return;
 
   if (state.currentFocus !== -1) {
-    if (gsap.isTweening(astronaut.position)) return;
     if (gsap.isTweening(camera.position)) return;
     gsap.to(camera.position, {
       y: astronaut.position.y + 2,
@@ -83,7 +82,6 @@ export function handleScroll(event, astronaut, camera, state, bokehPass) {
       astronaut.position.z
     )
   );
-  // moveAstronaut(astronaut, camera, clampedAstronautY);
   state.currentFocus = -1;
 }
 
@@ -106,6 +104,12 @@ export function handleClick(
   bokehPass,
   beacon
 ) {
+  const navigationNav = document.getElementById("navigation");
+  if (navigationNav.contains(event.target)) {
+    console.log("clicked on navigation");
+    return;
+  }
+
   if (!state.canMove) {
     state.canMove = true; // Enable scrolling
     state.currentFocus = -1; // Reset the focus
@@ -202,7 +206,7 @@ export function handleClick(
       planet.documentSectionEl.classList.remove("visible");
       planet.documentSectionEl.classList.add("hidden");
     });
-    
+
     gsap.to(camera.position, {
       x: group.position.x + offsetX * reverse,
       y: group.position.y,
