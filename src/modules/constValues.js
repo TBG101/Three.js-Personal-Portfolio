@@ -192,9 +192,28 @@ const planetData = [
   },
 ];
 
+const sectionCoordinates = [
+  {
+    minY: 419,
+    maxY: 430,
+  },
+  {
+    minY: 58,
+    maxY: 380,
+  },
+  {
+    minY: 30,
+    maxY: 58,
+  },
+  {
+    minY: -5,
+    maxY: 30,
+  },
+];
+
 const astronautPath = "./astrov2.glb";
 const minY = -5;
-const maxY = 400;
+const maxY = 430;
 export {
   dialogData,
   astronautPath,
@@ -203,4 +222,5 @@ export {
   techStackDirection,
   minY,
   maxY,
+  sectionCoordinates,
 };

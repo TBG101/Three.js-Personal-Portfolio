@@ -32,7 +32,7 @@ export async function loadAstronaut(scene) {
 export function moveAstronaut(astronaut, camera, targetPosition) {
   if (astronaut.position === targetPosition) return;
   astronautVelocity += (targetPosition.y - astronaut.position.y) / 100;
-  astronautVelocity = MathUtils.clamp(astronautVelocity, -0.1, 0.1);
+  astronautVelocity = MathUtils.clamp(astronautVelocity, -0.15, 0.15);
 }
 
 export function updateAstronaut(astronaut, camera, state, deltaTime) {

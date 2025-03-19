@@ -61,21 +61,6 @@ export function initLights(scene) {
   scene.add(sunLight);
 }
 
-export function initSlider(astronaut) {
-  const slider = document.createElement("input");
-  slider.type = "range";
-  slider.min = minY;
-  slider.max = maxY;
-  slider.value = astronaut ? astronaut.position.y : 0;
-  slider.style.position = "absolute";
-  slider.style.bottom = "0px";
-  slider.style.right = "0px";
-  slider.style.width = "500px";
-  slider.style.height = "20px";
-  slider.style.zIndex = "1000";
-  return document.body.appendChild(slider);
-}
-
 /**
  * @param {scene} scene
  * @param {camera} camera

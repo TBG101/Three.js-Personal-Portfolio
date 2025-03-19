@@ -7,7 +7,6 @@ import {
   initLights,
   createPlanets,
   randomAsteroids,
-  initSlider,
   addStars,
   postProccesing,
 } from "./modules/init";
@@ -19,7 +18,7 @@ import {
   handleScroll,
   handleClick,
 } from "./modules/eventHandlers";
-import { dialogData } from "./modules/constValues";
+import { dialogData, sectionCoordinates } from "./modules/constValues";
 import { isInBetween } from "./modules/utils";
 import { setAstronautVelocity, updateAstronaut } from "./modules/astronaut";
 
@@ -106,7 +105,7 @@ const { astronaut, animations } = await loadAstronaut(scene);
 const planets = await createPlanets(scene, camera);
 
 // Contact Section
-const beacon = await createBeacon(scene, new THREE.Vector3(-10, 400, -15));
+const beacon = await createBeacon(scene, new THREE.Vector3(-10, 420, -15));
 document.getElementById("close-sos").addEventListener("click", () => {
   state.contactShown = false;
   const element = document.getElementById("sos-interface");
@@ -140,11 +139,7 @@ const stats = new Stats();
 stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
-// Slider for Astronaut Position Y
-const slider = initSlider(astronaut, camera);
-
 // function for navigation
-
 let isMovingToSection = false;
 const handleGoto = (minY, maxY) => {
   const isInside = isInBetween(astronaut.position.y, minY, maxY);
@@ -170,16 +165,6 @@ const handleGoto = (minY, maxY) => {
     isMovingToSection = false;
   }
 };
-
-// Event Listeners
-slider.addEventListener("input", (event) => {
-  if (astronaut) {
-    const targetPosition = new THREE.Vector3().copy(astronaut.position);
-    targetPosition.y = event.target.value;
-    astronaut.position.y = targetPosition.y;
-    camera.position.y = targetPosition.y + 2;
-  }
-});
 
 window.addEventListener("resize", () =>
   handleResize(camera, renderer, renderer3D)
@@ -247,12 +232,17 @@ function animate() {
   const deltaTime = clock.getDelta();
 
   if (state.goToSection > -1) {
-    if (state.goToSection === 3) handleGoto(-5, 40);
-    if (state.goToSection === 2) handleGoto(41, 100);
-    if (state.goToSection === 1) handleGoto(101, 200);
-    if (state.goToSection === 0) handleGoto(350, 400);
+    const position = sectionCoordinates[state.goToSection];
+    handleGoto(position.minY, position.maxY);
+  } else {
+    sectionCoordinates.forEach((position, index) => {
+      navItems[index].classList.remove("active");
+      if (isInBetween(astronaut.position.y, position.minY, position.maxY)) {
+        if (!navItems[index].classList.contains("active"))
+          navItems[index].classList.add("active");
+      }
+    });
   }
-
   // planets
   planets.forEach((planet) => {
     if (planet.mesh) planet.mesh.rotation.y += 0.002;
