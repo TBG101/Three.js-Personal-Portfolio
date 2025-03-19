@@ -73,17 +73,18 @@ loader.load("./textures/space_blue.png", (texture) => {
   texture.repeat.setScalar(1);
   texture.encoding = THREE.sRGBEncoding;
   texture.mapping = THREE.EquirectangularReflectionMapping;
-  texture.encoding = THREE.sRGBEncoding;
 
   scene.environment = texture;
   scene.background = texture;
 
   const aspectRatio = texture.image.width / texture.image.height;
   const geometry = new THREE.PlaneGeometry(1000 * aspectRatio, 1000);
-  const material = new THREE.MeshBasicMaterial({ map: texture });
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+  });
 
   const backgroundPlane = new THREE.Mesh(geometry, material);
-  backgroundPlane.position.set(0, 0, -500); // Adjust as needed
+  backgroundPlane.position.set(40, 250, -400); // Adjust as needed
   scene.add(backgroundPlane);
 });
 
@@ -98,13 +99,18 @@ function moveStars(currentTime) {
   stars.position.z += deltaZ * 0.001;
 }
 
+const currentDownloaderElement = document.getElementById("current-download");
+
 // Load Astronaut Model
+currentDownloaderElement.innerText = "Downloading Astronaut Model";
 const { astronaut, animations } = await loadAstronaut(scene);
 
 // Planets
+currentDownloaderElement.innerText = "Downloading Planets";
 const planets = await createPlanets(scene, camera);
 
 // Contact Section
+currentDownloaderElement.innerText = "Downloading Beacon";
 const beacon = await createBeacon(scene, new THREE.Vector3(-10, 420, -15));
 document.getElementById("close-sos").addEventListener("click", () => {
   state.contactShown = false;
@@ -118,6 +124,7 @@ let animateAstrroProgress = 0;
 const { curve, instancedMesh } = randomAsteroids(scene, 200);
 
 // techStack
+currentDownloaderElement.innerText = "Downloading TechStacks";
 const techStack = await initTechStackSection(scene, camera);
 let selection = [];
 
@@ -198,7 +205,6 @@ gsap.to(camera.position, {
 
 // astronaut animations
 const animation = animations[0];
-console.log(animation);
 const mixer = new THREE.AnimationMixer(astronaut);
 const action = mixer.clipAction(animation);
 action.play();
@@ -207,6 +213,15 @@ action.play();
 renderer3D.domElement.childNodes.forEach((child) => {
   child.style.pointerEvents = "none";
 });
+
+{
+  const tempElement = document.getElementById("loading");
+  tempElement.style.opacity = 0;
+  tempElement.style.transform = "translateY(-100%)";
+  setTimeout(() => {
+    tempElement.style.display = "none";
+  }, 1000);
+}
 
 // animate needed data
 /** @type {CSS3DObject[]} **/

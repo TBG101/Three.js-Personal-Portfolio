@@ -106,7 +106,6 @@ export function handleClick(
 ) {
   const navigationNav = document.getElementById("navigation");
   if (navigationNav.contains(event.target)) {
-    console.log("clicked on navigation");
     return;
   }
 

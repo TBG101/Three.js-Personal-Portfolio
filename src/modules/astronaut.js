@@ -1,6 +1,7 @@
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { astronautPath } from "./constValues";
+import { astronautPath, maxY, minY } from "./constValues";
 import { MathUtils } from "three";
+import { isInBetween } from "./utils";
 
 let astronautVelocity = 0;
 
@@ -60,7 +61,8 @@ export function updateAstronaut(astronaut, camera, state, deltaTime) {
     state.currentFocus == -2 ||
     state.canMove == false ||
     state.currentFocus > -1 ||
-    state.contactShown
+    state.contactShown ||
+    !isInBetween(astronaut.position.y, minY, maxY)
   ) {
     astronautVelocity *= 0.9;
     astronaut.position.y += astronautVelocity;
@@ -68,8 +70,7 @@ export function updateAstronaut(astronaut, camera, state, deltaTime) {
   // check if the astronaut is in focus to not mess up the camera smooth movement
   if (state.currentFocus == -1) camera.position.y = astronaut.position.y + 2;
 
-  console.log("velocity", astronautVelocity);
-  console.log("astronaut position", deltaTime);
+
 }
 
 export function getAstronautVelocity() {
