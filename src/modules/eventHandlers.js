@@ -20,7 +20,10 @@ export function handleResize(camera, renderer, labelRenderer) {
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
   renderer.setSize(width, height);
-  labelRenderer.setSize(width, height);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  if (labelRenderer) {
+    labelRenderer.setSize(width, height);
+  }
 }
 
 /**
@@ -32,6 +35,7 @@ export function handleResize(camera, renderer, labelRenderer) {
  *  **/
 export function handleScroll(event, astronaut, camera, state, bokehPass) {
   console.log("scrolling");
+  if (state.goToSection > -1) return;
   if (!state.canMove) return;
   if (event.deltaY === 0) return;
   if (!astronaut) return;
@@ -108,10 +112,24 @@ export function handleClick(
   if (navigationNav.contains(event.target)) {
     return;
   }
+  if (state.goToSection > -1) return;
 
   if (!state.canMove) {
     state.canMove = true; // Enable scrolling
     state.currentFocus = -1; // Reset the focus
+    const mouse = new THREE.Vector2();
+    const raycaster = new THREE.Raycaster();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    // Check if the ray intersects with the beacon
+    const beaconIntersects = raycaster.intersectObjects([beacon]);
+    if (beaconIntersects.length > 0) {
+      const element = document.getElementById("sos-interface");
+      element.className = "visible";
+      state.contactShown = true;
+      return;
+    }
     return;
   }
 
@@ -121,6 +139,7 @@ export function handleClick(
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
+
     // Check if the ray intersects with the beacon
     const beaconIntersects = raycaster.intersectObjects([beacon]);
     if (beaconIntersects.length > 0) {
@@ -198,7 +217,7 @@ export function handleClick(
     const fov = camera.fov * (Math.PI / 180); // convert vertical fov to radians
     const screenHeight = 2 * Math.tan(fov / 2) * safeDistance; // screen height at the safe distance
     const screenWidth = screenHeight * camera.aspect; // screen width at the safe distance
-    const offsetX = screenWidth / 6; 
+    const offsetX = screenWidth / 6;
     const reverse = group.position.x < 0 ? -1 : 1; // reverse the offset if the planet is on the left side
     planetData.forEach((planet) => {
       if (!planet.documentSectionEl) return;

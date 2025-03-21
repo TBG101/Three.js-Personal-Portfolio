@@ -16,7 +16,7 @@ export async function createBeacon(scene, beaconPosition) {
         const beacon = gltf.scene;
 
         beacon.position.copy(beaconPosition);
-        beacon.scale.setScalar(1);
+        beacon.scale.setScalar(1.5);
         scene.add(beacon);
         becaonBasePosition = new THREE.Vector3().copy(beaconPosition);
 

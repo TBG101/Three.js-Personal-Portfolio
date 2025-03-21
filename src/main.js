@@ -261,7 +261,7 @@ function animate() {
   } else {
     sectionCoordinates.forEach((position, index) => {
       navItems[index].classList.remove("active");
-      if (isInBetween(astronaut.position.y, position.minY-5, position.maxY+5)) {
+      if (isInBetween(astronaut.position.y, position.minY, position.maxY)) {
         if (!navItems[index].classList.contains("active"))
           navItems[index].classList.add("active");
       }

@@ -136,6 +136,15 @@
   filter: drop-shadow(0px 4px 6px rgba(255, 255, 255, 0.5));
 }
 
+.move-instruction {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
+  font-size: 0.8rem;
+  color: #cccccc7c;
+}
+
 body {
   height: 100vh;
   width: 100vw;
@@ -409,12 +418,19 @@ body {
 }
 
 
-
 h2 {
   margin-top: 10px;
   color: rgb(146, 148, 248);
   font-size: 2rem;
   margin-bottom: 10px;
+}
+
+h3 {
+  margin-top: 10px;
+  color: rgb(146, 148, 248);
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+  font-weight: 600;
 }
 
 .project__stack {
@@ -601,16 +617,43 @@ h2 {
 }
 
 #sos-interface ul {
+
   list-style-type: none;
+
   padding: 0;
 }
 
 #sos-interface li {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  gap: 10px;
   margin: 8px 0;
+  color: #ccc;
+  transition: 0.3s ease;
+}
+
+#sos-interface li:hover {
+  scale: 1.005;
 }
 
 #sos-interface a {
   text-decoration: none;
   font-weight: bold;
   text-decoration: underline;
+  color: #ccc;
+  transition: 0.3s ease;
+  line-height: 1.5rem;
+  letter-spacing: 4px;
+}
+
+#sos-interface a:hover {
+  color: #99b7f7;
+}
+
+.social-icon {
+  filter: drop-shadow(0px 0px 4px #cccccc33);
+  width: 20px;
+  transition: transform 0.3s ease;
 }
