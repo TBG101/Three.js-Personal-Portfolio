@@ -31,6 +31,7 @@ export function handleResize(camera, renderer, labelRenderer) {
  * @param {BokehPass} bokehPass
  *  **/
 export function handleScroll(event, astronaut, camera, state, bokehPass) {
+  console.log("scrolling");
   if (!state.canMove) return;
   if (event.deltaY === 0) return;
   if (!astronaut) return;
@@ -40,7 +41,6 @@ export function handleScroll(event, astronaut, camera, state, bokehPass) {
     astronaut.position
   );
   // const defaultDistanceCameraToAstro = 15.2;
-
   if (gsap.isTweening(camera.position)) return;
 
   if (state.currentFocus !== -1) {
@@ -186,7 +186,7 @@ export function handleClick(
     // calculate safe position for camera
     const boundingBox = new THREE.Box3().setFromObject(group);
     const boundingSphere = boundingBox.getBoundingSphere(new THREE.Sphere());
-    const safeDistance = boundingSphere.radius * 1.3;
+    const safeDistance = boundingSphere.radius * 1.25;
     const newCameraPosition = new THREE.Vector3().copy(group.position);
     newCameraPosition.z += safeDistance;
     gsap.to(bokehPass.uniforms["focus"], {
@@ -198,8 +198,8 @@ export function handleClick(
     const fov = camera.fov * (Math.PI / 180); // convert vertical fov to radians
     const screenHeight = 2 * Math.tan(fov / 2) * safeDistance; // screen height at the safe distance
     const screenWidth = screenHeight * camera.aspect; // screen width at the safe distance
-    const offsetX = screenWidth / 6; // offset to center the planet in the left half of the screen
-    const reverse = group.position.x < 0 ? -1 : 1; // reverse the offset if the planet is on the
+    const offsetX = screenWidth / 6; 
+    const reverse = group.position.x < 0 ? -1 : 1; // reverse the offset if the planet is on the left side
     planetData.forEach((planet) => {
       if (!planet.documentSectionEl) return;
       planet.documentSectionEl.classList.remove("visible");

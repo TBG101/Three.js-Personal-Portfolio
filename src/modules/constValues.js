@@ -1,4 +1,14 @@
-import { createEarth, createMars } from "./planets";
+import {
+  createEarth,
+  createJupiter,
+  createMars,
+  createEris,
+  createNeptune,
+} from "./planets";
+
+const astronautPath = "./astrov2.glb";
+const minY = -5;
+const maxY = 475;
 
 /**
  * @type {Array<{id: number,text: string, dialogPosition: {x: number, y: number,z: number}}>}
@@ -33,6 +43,11 @@ const dialogData = [
     id: 5,
     text: "Now for the projects,\n Each planet represents a project I've worked on. Click on them to learn more!",
     dialogPosition: { x: 7.5, y: 60, z: 0 },
+  },
+  {
+    id: 6,
+    text: "Strange… this object defies all known designs.\nIt pulses with an unknown energy, almost like… a beacon.\nTouch it and unveil its secrets.",
+    dialogPosition: { x: 7.5, y: 462, z: 0 },
   },
 ];
 
@@ -138,10 +153,10 @@ const techStackDirection = techStack.reduce((acc, tech, index) => {
   return acc;
 }, []);
 
-const offsetZ = -20;
+const offsetZ = -30;
 const planetData = [
   {
-    size: 15,
+    size: 12, // Earth-sized
     position: { x: 35, y: 80, z: offsetZ * 3 },
     name: "3D Portfolio",
     documentSectionEl: document.getElementById("3D Portfolio"),
@@ -149,57 +164,73 @@ const planetData = [
     tech: ["JavaScript", "Three.js", "GSAP"],
     description:
       "An interactive 3D portfolio showcasing my projects, skills, and experience in a visually immersive way.",
+    github: "https://github.com/TBG101/3D-portfolio",
   },
   {
-    size: 30,
-    position: { x: -55, y: 150, z: offsetZ * 5 },
+    size: 35, // Mars is slightly smaller than Earth but large enough
+    position: { x: -70, y: 140, z: offsetZ * 5 },
     name: "E-commerce Website",
     documentSectionEl: document.getElementById("E-commerce Website"),
     createFunction: createMars,
     tech: ["Next.js", "MongoDB", "Tailwind"],
     description:
-      "A full-featured e-commerce platform with secure authentication, product management, and seamless checkout experience.",
+      "A full-featured e-commerce platform with secure authentication, product management, and a seamless checkout experience.",
+    github: "https://github.com/TBG101/Next.js-E-commerce",
   },
   {
-    size: 25,
-    position: { x: 50, y: 220, z: offsetZ * 4 },
+    size: 50, // Jupiter is the largest available, switching to Neptune due to cap
+    position: { x: 70, y: 220, z: offsetZ * 6 },
     name: "Music Player App",
     documentSectionEl: document.getElementById("Music player app"),
-    createFunction: createEarth,
+    createFunction: createNeptune, // Using Neptune since max scale is 50
     tech: ["Flutter", "FFmpeg"],
     description:
       "A sleek and feature-rich music player app with offline support, YouTube audio downloads, and podcast streaming.",
+    github: "https://github.com/TBG101/Music-Player-Android",
   },
   {
-    size: 25,
-    position: { x: -50, y: 290, z: offsetZ * 4 },
+    size: 45, // Slightly smaller than the largest one
+    position: { x: -60, y: 320, z: offsetZ * 4 },
     name: "PC Remote Control",
     documentSectionEl: document.getElementById("PC Remote Control"),
-    createFunction: createEarth,
+    createFunction: createJupiter, // Since Neptune is used, assigning Jupiter
     tech: ["Flutter", "Rust"],
     description:
       "A remote control application that allows users to manage their PC wirelessly using their mobile device with ease.",
+    customData: {
+      links: [
+        {
+          title: "View Mobile Repository",
+          url: "https://github.com/TBG101/Remote-Desktop-Shutdown",
+        },
+        {
+          title: "View Desktop Repository",
+          url: "https://github.com/TBG101/Remote-Desktop-Shutdown-Windows",
+        },
+      ],
+    },
   },
   {
-    size: 25,
-    position: { x: 55, y: 360, z: offsetZ * 4 },
+    size: 25, // Eris is naturally small
+    position: { x: 55, y: 400, z: offsetZ * 4 },
     name: "Kick VOD Downloader",
     documentSectionEl: document.getElementById("Kick VOD Downloader"),
-    createFunction: createEarth,
+    createFunction: createEris,
     tech: ["Flutter", "FFmpeg"],
     description:
       "A powerful tool for downloading and saving video-on-demand content from Kick.com for offline viewing.",
+    github: "https://github.com/TBG101/kickdownloader",
   },
 ];
 
 const sectionCoordinates = [
   {
-    minY: 419,
-    maxY: 430,
+    minY: 450,
+    maxY: maxY,
   },
   {
     minY: 58,
-    maxY: 380,
+    maxY: 450,
   },
   {
     minY: 30,
@@ -211,9 +242,6 @@ const sectionCoordinates = [
   },
 ];
 
-const astronautPath = "./astrov2.glb";
-const minY = -5;
-const maxY = 430;
 export {
   dialogData,
   astronautPath,

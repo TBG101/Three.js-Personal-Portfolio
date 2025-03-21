@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { maxY, minY } from "./constValues";
 import { planetData } from "./constValues";
 
 import {
@@ -68,26 +67,22 @@ export function initLights(scene) {
  * **/
 export async function createPlanets(scene) {
   const planets = [];
-  await planetData.forEach(
-    async (
-      { size, position, name, createFunction, tech: techUsed, description },
+  await planetData.forEach(async (data, index) => {
+    const { createFunction, size, position, name, tech, description } = data;
+    const planet = await createFunction(
+      scene,
+      position,
+      size,
+      name,
+      tech,
+      description,
       index
-    ) => {
-      const planet = await createFunction(
-        scene,
-        position,
-        size,
-        name,
-        techUsed,
-        description,
-        index
-      );
-      createDetailedDescription(name, techUsed, description, index);
+    );
+    createDetailedDescription(data, index);
 
-      planetData[index].documentSectionEl = document.getElementById(name);
-      planets.push(planet);
-    }
-  );
+    data.documentSectionEl = document.getElementById(name);
+    planets.push(planet);
+  });
   return planets;
 }
 
@@ -259,3 +254,4 @@ export function postProccesing(scene, camera, renderer, selection) {
 
   return { composer, bokehPass };
 }
+

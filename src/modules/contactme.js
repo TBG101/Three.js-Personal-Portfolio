@@ -35,7 +35,6 @@ export async function createBeacon(scene, beaconPosition) {
 }
 
 export async function moveBeacon(beacon, currentTime) {
-  console.log(becaonBasePosition);
   beacon.position.y = Math.sin(currentTime) * 0.2 + becaonBasePosition.y;
   beacon.position.x = Math.cos(currentTime) * 0.4 + becaonBasePosition.x;
   beacon.position.z = Math.sin(currentTime) * 0.8 + becaonBasePosition.z;

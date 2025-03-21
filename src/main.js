@@ -12,7 +12,7 @@ import {
 } from "./modules/init";
 import { CSS3DRenderer } from "three/addons/renderers/CSS3DRenderer.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
-import { createDialog } from "./modules/dialog";
+import { createDialog, initInstructions } from "./modules/dialog";
 import {
   handleResize,
   handleScroll,
@@ -111,7 +111,7 @@ const planets = await createPlanets(scene, camera);
 
 // Contact Section
 currentDownloaderElement.innerText = "Downloading Beacon";
-const beacon = await createBeacon(scene, new THREE.Vector3(-10, 420, -15));
+const beacon = await createBeacon(scene, new THREE.Vector3(-10, 460, -15));
 document.getElementById("close-sos").addEventListener("click", () => {
   state.contactShown = false;
   const element = document.getElementById("sos-interface");
@@ -188,19 +188,16 @@ window.addEventListener("click", (event) =>
 const navItems = document.querySelectorAll(".nav-item");
 navItems.forEach((navItem, index) => {
   navItem.addEventListener("click", () => {
+    if (
+      state.canMove === false ||
+      state.contactShown ||
+      state.currentFocus !== -1
+    )
+      return;
     navItems.forEach((item) => item.classList.remove("active"));
     navItem.classList.add("active");
     state.goToSection = index;
   });
-});
-
-// Camera Animation to astronaut
-gsap.to(camera.position, {
-  ease: "power4.out",
-  duration: 1,
-  x: 0,
-  y: astronaut.position.y + 2,
-  z: astronaut.position.z + 15,
 });
 
 // astronaut animations
@@ -217,11 +214,23 @@ renderer3D.domElement.childNodes.forEach((child) => {
 {
   const tempElement = document.getElementById("loading");
   tempElement.style.opacity = 0;
-  tempElement.style.transform = "translateY(-100%)";
+  tempElement.style.transform = "TranslateY(100%)";
+
   setTimeout(() => {
     tempElement.style.display = "none";
-  }, 1000);
+  }, 1500);
 }
+
+// Camera Animation to astronaut
+gsap.to(camera.position, {
+  ease: "power4.out",
+  duration: 1,
+  x: 0,
+  y: astronaut.position.y + 2,
+  z: astronaut.position.z + 15,
+});
+
+scene.add(initInstructions());
 
 // animate needed data
 /** @type {CSS3DObject[]} **/
@@ -252,12 +261,13 @@ function animate() {
   } else {
     sectionCoordinates.forEach((position, index) => {
       navItems[index].classList.remove("active");
-      if (isInBetween(astronaut.position.y, position.minY, position.maxY)) {
+      if (isInBetween(astronaut.position.y, position.minY-5, position.maxY+5)) {
         if (!navItems[index].classList.contains("active"))
           navItems[index].classList.add("active");
       }
     });
   }
+
   // planets
   planets.forEach((planet) => {
     if (planet.mesh) planet.mesh.rotation.y += 0.002;
@@ -275,7 +285,7 @@ function animate() {
   moveStars(currentTime);
 
   // asteroids
-  animateAstrroProgress = (animateAstrroProgress + 0.0001) % 1;
+  animateAstrroProgress = (animateAstrroProgress + 0.0001 * deltaTime) % 1;
   const position = curve.getPointAt(animateAstrroProgress);
   instancedMesh.position.copy(position);
   instancedMesh.instanceMatrix.needsUpdate = true;

@@ -54,7 +54,7 @@ function getFresnelMat({ rimHex = 0x0088ff, facingHex = 0x000000 } = {}) {
   return fresnelMat;
 }
 
-export function createDetailedDescription(name, techUsed, description, index) {
+export function createDetailedDescription(data, index) {
   const template = document.getElementById("project-template");
   const clone = template.cloneNode(true);
   const projectTitle = clone.children[0].children[0]; // h1
@@ -63,16 +63,27 @@ export function createDetailedDescription(name, techUsed, description, index) {
   const techStackList = clone.children[0].children[3]; // ul
   const viewProject = clone.children[0].children[4].children[0]; // a
 
-  projectTitle.textContent = name;
-  projectDescription.textContent = description;
+  projectTitle.textContent = data.name;
+  projectDescription.textContent = data.description;
   techStackTitle.textContent = "Tech Stack";
-  techUsed.forEach((tech) => {
+  data.tech.forEach((tech) => {
     const li = document.createElement("li");
     li.textContent = tech;
     techStackList.appendChild(li);
   });
-  viewProject.href = `#${name.replace(/\s/g, "")}`;
-  clone.id = name;
+
+  if (data.github) viewProject.href = `#${data.name.replace(/\s/g, "")}`;
+  else if (data.customData) {
+    data.customData.links.forEach((links) => {
+      const buttonContainerClone = viewProject.parentElement.cloneNode(true);
+      const buttonClone = buttonContainerClone.children[0];
+      buttonClone.href = links.url;
+      buttonClone.textContent = links.title;
+      clone.children[0].appendChild(buttonContainerClone);
+    });
+    viewProject.parentElement.remove();
+  }
+  clone.id = data.name;
   if (index % 2 == 1) {
     clone.classList.add("reverse");
   }
@@ -206,86 +217,206 @@ async function createAllOrbits(earthGroup, techUsed, animateFunctions = []) {
   );
 }
 
-export async function createEarth(
+export async function createPlanet(
   scene,
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
   techUsed,
+  data = {}
 ) {
-  const earthGroup = new THREE.Group();
-  earthGroup.rotation.z = (-23.4 * Math.PI) / 180;
-  scene.add(earthGroup);
+  const {
+    map,
+    specularMap,
+    bumpMap,
+    bumpScale,
+    lightsMap,
+    cloudsMap,
+    cloudsMapTrans,
+    fresneData,
+  } = data;
+  const basePlanetGroup = new THREE.Group();
+  basePlanetGroup.rotation.z = (-23.4 * Math.PI) / 180;
+  scene.add(basePlanetGroup);
 
   const loader = new THREE.TextureLoader();
   const geometry = new THREE.IcosahedronGeometry(1, 12);
+
   const material = new THREE.MeshPhongMaterial({
-    map: loader.load("./textures/earth/00_earthmap1k.jpg"),
-    specularMap: loader.load("./textures/earth/02_earthspec1k.jpg"),
-    bumpMap: loader.load("./textures/earth/01_earthbump1k.jpg"),
-    bumpScale: 0.04,
+    map: await new Promise((res) => {
+      loader.load(
+        map,
+        (texture) => res(texture),
+        undefined,
+        (error) => console.error("Error loading texture", error)
+      );
+    }),
+    specularMap: specularMap
+      ? await new Promise((res) => {
+          loader.load(
+            specularMap,
+            (texture) => res(texture),
+            undefined,
+            (error) => console.error("Error loading texture", error)
+          );
+        })
+      : null,
+    bumpMap: bumpMap
+      ? await new Promise((res) => {
+          loader.load(
+            bumpMap,
+            (texture) => res(texture),
+            undefined,
+            (error) => console.error("Error loading texture", error)
+          );
+        })
+      : null,
+    bumpScale: bumpScale,
   });
 
   // Earth Mesh
   const earthMesh = new THREE.Mesh(geometry, material);
-  earthGroup.add(earthMesh);
+  basePlanetGroup.add(earthMesh);
 
   // Lights
-  const lightsMat = new THREE.MeshBasicMaterial({
-    map: loader.load("./textures/earth/03_earthlights1k.jpg"),
-    blending: THREE.AdditiveBlending,
-  });
-  const lightsMesh = new THREE.Mesh(geometry, lightsMat);
-  lightsMesh.scale.setScalar(1.02);
-  earthGroup.add(lightsMesh);
+  let lightsMesh = null;
+  if (lightsMap) {
+    const lightsMat = new THREE.MeshBasicMaterial({
+      map: await new Promise((res) => {
+        loader.load(
+          lightsMap,
+          (texture) => res(texture),
+          undefined,
+          (error) => console.error("Error loading texture", error)
+        );
+      }),
+      blending: THREE.AdditiveBlending,
+    });
+    lightsMesh = new THREE.Mesh(geometry, lightsMat);
+    lightsMesh.scale.setScalar(1.002);
+    basePlanetGroup.add(lightsMesh);
+  }
 
   // Clouds
-  const cloudsMat = new THREE.MeshStandardMaterial({
-    map: loader.load("./textures/earth/04_earthcloudmap.jpg"),
-    transparent: true,
-    opacity: 0.8,
-    blending: THREE.AdditiveBlending,
-    alphaMap: loader.load("./textures/earth/05_earthcloudmaptrans.jpg"),
-  });
-  const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
-  cloudsMesh.scale.setScalar(1.003);
-  earthGroup.add(cloudsMesh);
+  let cloudsMesh = null;
+  if (cloudsMap) {
+    const cloudsMat = new THREE.MeshStandardMaterial({
+      map: await new Promise((res) => {
+        loader.load(
+          cloudsMap,
+          (texture) => res(texture),
+          undefined,
+          (error) => console.error("Error loading texture", error)
+        );
+      }),
+      transparent: true,
+      opacity: 0.5,
+      blending: THREE.AdditiveBlending,
+      alphaMap: await new Promise((res) => {
+        loader.load(
+          cloudsMapTrans,
+          (texture) => res(texture),
+          undefined,
+          (error) => console.error("Error loading texture", error)
+        );
+      }),
+    });
+    cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
+    cloudsMesh.scale.setScalar(1.004);
+    basePlanetGroup.add(cloudsMesh);
+  }
 
   // Glow
-  const fresnelMat = getFresnelMat();
+  const fresnelMat = getFresnelMat(fresneData);
   const glowMesh = new THREE.Mesh(geometry, fresnelMat);
-  glowMesh.scale.setScalar(1.01);
-  earthGroup.add(glowMesh);
+  glowMesh.scale.setScalar(1.015);
+  basePlanetGroup.add(glowMesh);
 
-  // Moon
+  // orbits
   let animateFunctions = [];
-  await createAllOrbits(earthGroup, techUsed, animateFunctions);
+  await createAllOrbits(basePlanetGroup, techUsed, animateFunctions);
 
   // Position and Scale
-  earthGroup.scale.setScalar(size);
-  earthGroup.position.set(position.x, position.y, position.z);
+  basePlanetGroup.scale.setScalar(size);
+  basePlanetGroup.position.set(position.x, position.y, position.z);
 
   // Label
   const earthRadius = geometry.parameters.radius * size;
   const label = createPlanet3DLabel(scene, name, {
-    x: earthGroup.position.x,
-    y: earthGroup.position.y,
-    z: earthGroup.position.z,
+    x: basePlanetGroup.position.x,
+    y: basePlanetGroup.position.y,
+    z: basePlanetGroup.position.z,
     planetSize: earthRadius,
     scale: 0.1,
   });
-
 
   return {
     mesh: earthMesh,
     lights: lightsMesh,
     clouds: cloudsMesh,
     glow: glowMesh,
-    group: earthGroup,
+    group: basePlanetGroup,
     label: label,
     name: name,
     orbitAnimation: animateFunctions,
   };
+}
+
+export async function createNeptune(
+  scene,
+  position = { x: 0, y: 0, z: 0 },
+  size,
+  name,
+  techUsed
+) {
+  return await createPlanet(scene, position, size, name, techUsed, {
+    map: "./textures/neptune/base.jpg",
+    fresneData: { rimHex: 0x00aaff },
+  });
+}
+
+export async function createEris(
+  scene,
+  position = { x: 0, y: 0, z: 0 },
+  size,
+  name,
+  techUsed
+) {
+  return await createPlanet(scene, position, size, name, techUsed, {
+    map: "./textures/eris/base.jpg",
+    fresneData: { rimHex: 0xaaaaaa },
+  });
+}
+
+export async function createJupiter(
+  scene,
+  position = { x: 0, y: 0, z: 0 },
+  size,
+  name,
+  techUsed
+) {
+  return await createPlanet(scene, position, size, name, techUsed, {
+    map: "./textures/jupiter/base.jpg",
+    fresneData: { rimHex: 0xffe0bd },
+  });
+}
+
+export async function createEarth(
+  scene,
+  position = { x: 0, y: 0, z: 0 },
+  size,
+  name,
+  techUsed
+) {
+  return await createPlanet(scene, position, size, name, techUsed, {
+    map: "./textures/earth/00_earthmap1k.jpg",
+    specularMap: "./textures/earth/02_earthspec1k.jpg",
+    bumpMap: "./textures/earth/01_earthbump1k.jpg",
+    bumpScale: 0.04,
+    lightsMap: "./textures/earth/03_earthlights1k.jpg",
+    cloudsMap: "./textures/earth/04_earthcloudmap.jpg",
+    cloudsMapTrans: "./textures/earth/05_earthcloudmaptrans.jpg",
+  });
 }
 
 export async function createMars(
@@ -293,50 +424,13 @@ export async function createMars(
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
-  techUsed,
-
+  techUsed
 ) {
-  const marsGroup = new THREE.Group();
-  marsGroup.rotation.z = (-23.4 * Math.PI) / 180;
-  scene.add(marsGroup);
-
-  const loader = new THREE.TextureLoader();
-  const geometry = new THREE.IcosahedronGeometry(1, 12);
-  const material = new THREE.MeshPhongMaterial({
-    map: loader.load("./textures/mars/base.jpg"),
-    specularMap: loader.load("./textures/mars/glosiness.png"),
-    bumpMap: loader.load("./textures/earth/bump.png"),
+  return await createPlanet(scene, position, size, name, techUsed, {
+    map: "./textures/mars/base.jpg",
+    specularMap: "./textures/mars/glosiness.png",
+    bumpMap: "./textures/mars/bump.png",
     bumpScale: 0.05,
+    fresneData: { rimHex: 0xf4d3a6 },
   });
-
-  const marsMesh = new THREE.Mesh(geometry, material);
-  marsGroup.add(marsMesh);
-
-  const fresnelMat = getFresnelMat({ rimHex: 0xf4d3a6 });
-  const glowMesh = new THREE.Mesh(geometry, fresnelMat);
-  glowMesh.scale.setScalar(1.01);
-  marsGroup.add(glowMesh);
-  let animateFunctions = [];
-  await createAllOrbits(marsGroup, techUsed, animateFunctions);
-
-  marsGroup.scale.setScalar(size);
-  marsGroup.position.set(position.x, position.y, position.z);
-
-  const marsRadius = geometry.parameters.radius * size;
-  const label = createPlanet3DLabel(scene, name, {
-    x: marsGroup.position.x,
-    y: marsGroup.position.y,
-    z: marsGroup.position.z,
-    planetSize: marsRadius,
-    scale: 0.1,
-  });
-
-  return {
-    mesh: marsMesh,
-    glow: glowMesh,
-    group: marsGroup,
-    label: label,
-    name: name,
-    orbitAnimation: animateFunctions,
-  };
 }

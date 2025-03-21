@@ -43,20 +43,6 @@ export function updateAstronaut(astronaut, camera, state, deltaTime) {
   }
   const delta = deltaTime * 0.05;
 
-  if (astronautVelocity > 0) {
-    if (astronautVelocity - delta <= 0) {
-      astronautVelocity = 0;
-    } else {
-      astronautVelocity -= delta;
-    }
-  } else if (astronautVelocity < 0) {
-    if (astronautVelocity + delta >= 0) {
-      astronautVelocity = 0;
-    } else {
-      astronautVelocity += delta;
-    }
-  }
-
   if (
     state.currentFocus == -2 ||
     state.canMove == false ||
@@ -70,7 +56,19 @@ export function updateAstronaut(astronaut, camera, state, deltaTime) {
   // check if the astronaut is in focus to not mess up the camera smooth movement
   if (state.currentFocus == -1) camera.position.y = astronaut.position.y + 2;
 
-
+  if (astronautVelocity > 0) {
+    if (astronautVelocity - delta <= 0) {
+      astronautVelocity = 0;
+    } else {
+      astronautVelocity -= delta;
+    }
+  } else if (astronautVelocity < 0) {
+    if (astronautVelocity + delta >= 0) {
+      astronautVelocity = 0;
+    } else {
+      astronautVelocity += delta;
+    }
+  }
 }
 
 export function getAstronautVelocity() {
