@@ -44,7 +44,6 @@ export function handleScroll(event, astronaut, camera, state, bokehPass) {
   const cameraDistanceToAstronaut = camera.position.distanceTo(
     astronaut.position
   );
-  // const defaultDistanceCameraToAstro = 15.2;
   if (gsap.isTweening(camera.position)) return;
 
   if (state.currentFocus !== -1) {
@@ -115,8 +114,8 @@ export function handleClick(
   if (state.goToSection > -1) return;
 
   if (!state.canMove) {
-    state.canMove = true; // Enable scrolling
-    state.currentFocus = -1; // Reset the focus
+    state.canMove = true; 
+    state.currentFocus = -1; 
     const mouse = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;

@@ -88,12 +88,12 @@ export async function createPlanets(scene) {
 
 export function addStar(scene, options = {}) {
   const {
-    size = 0.25, // Default star size
-    spread = 100, // Default spread range
-    color = 0xffffff, // Default color
-    speed = 0.01, // Default rotation speed
-    movementSpeed = 0.01, // Default movement speed
-    movementRange = 10, // Default movement range
+    size = 0.25,
+    spread = 100,
+    color = 0xffffff,
+    speed = 0.01,
+    movementSpeed = 0.01,
+    movementRange = 10,
   } = options;
 
   const geometry = new THREE.SphereGeometry(size, 8, 8);
@@ -111,7 +111,6 @@ export function addStar(scene, options = {}) {
 
   star.position.set(x, y, z);
 
-  // Add properties for rotation and movement
   star.rotationSpeed = speed;
   star.movementSpeed = movementSpeed;
   star.movementRange = movementRange;
@@ -119,20 +118,16 @@ export function addStar(scene, options = {}) {
 
   scene.add(star);
 
-  return star; // Return the star object for further manipulation
+  return star;
 }
 
 export function addStars(scene, count = 750, options = {}) {
-  const {
-    size = 0.25, // Default star size
-    spread = 500, // Default spread range
-    color = 0xffffff, // Default color
-  } = options;
+  const { size = 0.25, spread = 500, color = 0xffffff } = options;
 
   const geometry = new THREE.SphereGeometry(size, 8, 8);
   const material = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(color).offsetHSL(Math.random() * 0.1, 0, 0), // Slight color variation
-    emissive: color, // Makes stars glow
+    color: new THREE.Color(color).offsetHSL(Math.random() * 0.1, 0, 0),
+    emissive: color,
     emissiveIntensity: 0.5,
   });
 
@@ -157,7 +152,7 @@ export function addStars(scene, count = 750, options = {}) {
 
   scene.add(instancedMesh);
 
-  return instancedMesh; // Return the instanced mesh for further manipulation
+  return instancedMesh;
 }
 
 export function randomAsteroids(scene, count = 50, spread = 250) {
@@ -187,7 +182,7 @@ export function randomAsteroids(scene, count = 50, spread = 250) {
     instancedMesh.setMatrixAt(i, dummy.matrix);
   }
 
-  instancedMesh.instanceMatrix.needsUpdate = true; // Ensure the instance matrix is updated
+  instancedMesh.instanceMatrix.needsUpdate = true;
   scene.add(instancedMesh);
 
   const offsetZ = -100;
@@ -254,4 +249,3 @@ export function postProccesing(scene, camera, renderer, selection) {
 
   return { composer, bokehPass };
 }
-

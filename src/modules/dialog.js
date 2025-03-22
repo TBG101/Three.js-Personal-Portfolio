@@ -23,7 +23,6 @@ export function createDialog(scene, msg, position = { x: 0, y: 0, z: 0 }) {
   cursorSpan.id = "text-cursor";
   cursorSpan.textContent = "|";
 
-  // Typewriter Effect with Consistent Speed
   function typeWriterEffect(text, element, speed = 40) {
     let i = 0;
     function type() {
@@ -39,8 +38,8 @@ export function createDialog(scene, msg, position = { x: 0, y: 0, z: 0 }) {
   }
 
   setTimeout(() => {
-    typeWriterEffect(msg, textSpan, 15); // Fast, smooth typing
-  }, 200); // Almost immediate appearance
+    typeWriterEffect(msg, textSpan, 15);
+  }, 200);
 
   return label;
 }
