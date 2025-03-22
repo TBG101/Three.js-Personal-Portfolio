@@ -45,8 +45,8 @@ export function updateAstronaut(astronaut, camera, state, deltaTime) {
 
   if (
     state.currentFocus == -2 ||
-    state.canMove == false ||
     state.currentFocus > -1 ||
+    state.canMove == false ||
     state.contactShown ||
     !isInBetween(astronaut.position.y, minY, maxY)
   ) {

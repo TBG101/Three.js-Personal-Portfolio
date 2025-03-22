@@ -72,7 +72,7 @@ export function createDetailedDescription(data, index) {
     techStackList.appendChild(li);
   });
 
-  if (data.github) viewProject.href = `#${data.name.replace(/\s/g, "")}`;
+  if (data.github) viewProject.href = data.github;
   else if (data.customData) {
     data.customData.links.forEach((links) => {
       const buttonContainerClone = viewProject.parentElement.cloneNode(true);
@@ -271,7 +271,7 @@ export async function createPlanet(
           );
         })
       : null,
-    bumpScale: bumpScale,
+    bumpScale: bumpScale ?? null,
   });
 
   // Earth Mesh

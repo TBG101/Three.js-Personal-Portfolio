@@ -18,7 +18,11 @@ import {
   handleScroll,
   handleClick,
 } from "./modules/eventHandlers";
-import { dialogData, sectionCoordinates } from "./modules/constValues";
+import {
+  dialogData,
+  planetData,
+  sectionCoordinates,
+} from "./modules/constValues";
 import { isInBetween } from "./modules/utils";
 import { setAstronautVelocity, updateAstronaut } from "./modules/astronaut";
 
@@ -29,6 +33,11 @@ import {
 } from "./modules/techStack";
 import { createBeacon, moveBeacon } from "./modules/contactme";
 import { loadAstronaut } from "./modules/astronaut";
+import {
+  animatePlanets,
+  animateStars,
+  animateAsteroids,
+} from "./modules/animations";
 
 /**
  * keep hold of the current focus
@@ -41,6 +50,7 @@ const state = {
   currentFocus: -1, // -1 means on astronaut, -2 means on dialog, n means on planet n,
   contactShown: false,
   goToSection: -1, // -1 mean no section, n mean go to section n
+  goToPlanet: -1, // -1 mean no planet, n mean go to planet n
 };
 
 // Scene Setup
@@ -89,16 +99,7 @@ loader.load("./textures/space_blue.png", (texture) => {
 });
 
 // Stars
-let stars = addStars(scene, 2000);
-function moveStars(currentTime) {
-  const deltaX = Math.sin(currentTime);
-  const deltaY = Math.cos(currentTime);
-  const deltaZ = Math.sin(currentTime);
-  stars.position.x += deltaX * 0.001;
-  stars.position.y += deltaY * 0.001;
-  stars.position.z += deltaZ * 0.001;
-}
-
+const stars = addStars(scene, 2000);
 const currentDownloaderElement = document.getElementById("current-download");
 
 // Load Astronaut Model
@@ -185,8 +186,27 @@ window.addEventListener("click", (event) =>
   handleClick(event, camera, planets, state, techStack, bokehPass, beacon)
 );
 
+const nav = document.getElementById("navigation");
+nav.addEventListener("mousemove", (event) => {
+  const rect = nav.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width - 0.5) * 30;
+  const y = ((event.clientY - rect.top) / rect.height - 0.5) * -10;
+
+  nav.style.transform = `rotateX(${y}deg) rotateY(${x}deg)`;
+});
+
+nav.addEventListener("mouseleave", () => {
+  gsap.to(nav.style, {
+    duration: 0.5,
+    ease: "power2.out",
+    transform: "rotateX(0deg) rotateY(0deg)",
+  });
+});
+
 const navItems = document.querySelectorAll(".nav-item");
 navItems.forEach((navItem, index) => {
+  if (navItem.id === "nav-projects-dropdown-container") return;
+
   navItem.addEventListener("click", () => {
     if (
       state.canMove === false ||
@@ -198,6 +218,24 @@ navItems.forEach((navItem, index) => {
     navItem.classList.add("active");
     state.goToSection = index;
   });
+});
+
+const navigationPlanets = document.getElementById("nav-projects-dropdown");
+
+planetData.reverse().forEach((planet, index) => {
+  const planetElement = document.createElement("li");
+  planetElement.id = index;
+  const planetLink = document.createElement("a");
+  planetLink.className = "nav-item";
+  planetLink.innerText = planet.name;
+
+  planetLink.addEventListener("click", () => {
+    if (state.canMove === false || state.contactShown) return;
+    state.goToPlanet = index;
+  });
+
+  planetElement.appendChild(planetLink);
+  navigationPlanets.appendChild(planetElement);
 });
 
 // astronaut animations
@@ -248,6 +286,7 @@ let currentTime = 0;
 const boundingBox = new THREE.Box3().setFromObject(astronaut);
 astroHeight = boundingBox.max.y - boundingBox.min.y;
 const clock = new THREE.Clock();
+
 // Animation Loop
 function animate() {
   stats.begin();
@@ -256,39 +295,45 @@ function animate() {
   const deltaTime = clock.getDelta();
 
   if (state.goToSection > -1) {
+    state.goToPlanet = -1;
     const position = sectionCoordinates[state.goToSection];
     handleGoto(position.minY, position.maxY);
   } else {
     sectionCoordinates.forEach((position, index) => {
-      navItems[index].classList.remove("active");
       if (isInBetween(astronaut.position.y, position.minY, position.maxY)) {
         if (!navItems[index].classList.contains("active"))
           navItems[index].classList.add("active");
-      }
+      } else navItems[index].classList.remove("active");
     });
   }
 
-  // planets
-  planets.forEach((planet) => {
-    if (planet.mesh) planet.mesh.rotation.y += 0.002;
-    if (planet.lights) planet.lights.rotation.y += 0.002;
-    if (planet.clouds) planet.clouds.rotation.y += 0.0023;
-    if (planet.glowMesh) planet.glowMesh.rotation.y += 0.002;
-    if (planet.orbitAnimation) {
-      planet.orbitAnimation.forEach((animateFunction) => {
-        animateFunction(currentTime, camera);
-      });
+  if (state.goToPlanet > -1) {
+    const planet = planetData[state.goToPlanet];
+    const targetPosition = new THREE.Vector3().copy(astronaut.position);
+    targetPosition.y = planet.position.y - 1;
+    setAstronautVelocity(0);
+    astronaut.position.y = astronaut.position.lerp(targetPosition, 0.05).y;
+    camera.position.y = astronaut.position.y + 2;
+
+    if (
+      isInBetween(
+        astronaut.position.y,
+        targetPosition.y - 0.1,
+        targetPosition.y + 0.1
+      )
+    ) {
+      state.goToPlanet = -1;
     }
-  });
+  }
+
+  // planets
+  animatePlanets(planets, currentTime, camera);
 
   // stars
-  moveStars(currentTime);
+  animateStars(stars, currentTime);
 
   // asteroids
-  animateAstrroProgress = (animateAstrroProgress + 0.0001 * deltaTime) % 1;
-  const position = curve.getPointAt(animateAstrroProgress);
-  instancedMesh.position.copy(position);
-  instancedMesh.instanceMatrix.needsUpdate = true;
+  animateAsteroids(curve, instancedMesh, deltaTime, animateAstrroProgress);
 
   // beacon
   moveBeacon(beacon, currentTime);
@@ -299,7 +344,7 @@ function animate() {
     updateTechRotation(stack.children[0], currentTime, index);
   });
 
-  if (state.goToSection === -1) {
+  if (state.goToSection === -1 && state.goToPlanet === -1) {
     if (state.canMove) {
       // astronaut
       updateAstronaut(astronaut, camera, state, deltaTime);

@@ -156,7 +156,7 @@ const techStackDirection = techStack.reduce((acc, tech, index) => {
 const offsetZ = -30;
 const planetData = [
   {
-    size: 12, // Earth-sized
+    size: 12, 
     position: { x: 35, y: 80, z: offsetZ * 3 },
     name: "3D Portfolio",
     documentSectionEl: document.getElementById("3D Portfolio"),
@@ -167,7 +167,7 @@ const planetData = [
     github: "https://github.com/TBG101/3D-portfolio",
   },
   {
-    size: 35, // Mars is slightly smaller than Earth but large enough
+    size: 35, 
     position: { x: -70, y: 140, z: offsetZ * 5 },
     name: "E-commerce Website",
     documentSectionEl: document.getElementById("E-commerce Website"),
@@ -178,22 +178,22 @@ const planetData = [
     github: "https://github.com/TBG101/Next.js-E-commerce",
   },
   {
-    size: 50, // Jupiter is the largest available, switching to Neptune due to cap
+    size: 50, 
     position: { x: 70, y: 220, z: offsetZ * 6 },
     name: "Music Player App",
     documentSectionEl: document.getElementById("Music player app"),
-    createFunction: createNeptune, // Using Neptune since max scale is 50
+    createFunction: createNeptune, 
     tech: ["Flutter", "FFmpeg"],
     description:
       "A sleek and feature-rich music player app with offline support, YouTube audio downloads, and podcast streaming.",
     github: "https://github.com/TBG101/Music-Player-Android",
   },
   {
-    size: 45, // Slightly smaller than the largest one
-    position: { x: -60, y: 320, z: offsetZ * 4 },
+    size: 45, 
+    position: { x: -60, y: 320, z: offsetZ * 6 },
     name: "PC Remote Control",
     documentSectionEl: document.getElementById("PC Remote Control"),
-    createFunction: createJupiter, // Since Neptune is used, assigning Jupiter
+    createFunction: createJupiter, 
     tech: ["Flutter", "Rust"],
     description:
       "A remote control application that allows users to manage their PC wirelessly using their mobile device with ease.",
@@ -211,7 +211,7 @@ const planetData = [
     },
   },
   {
-    size: 25, // Eris is naturally small
+    size: 25, 
     position: { x: 55, y: 400, z: offsetZ * 4 },
     name: "Kick VOD Downloader",
     documentSectionEl: document.getElementById("Kick VOD Downloader"),

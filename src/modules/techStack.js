@@ -33,10 +33,6 @@ export async function initTechStackSection(scene) {
             child.material = new THREE.MeshStandardMaterial({
               color: originalMaterial.color,
               map: originalMaterial.map,
-              metalness: 0,
-              roughness: 0.5,
-              emissiveIntensity: 0.5,
-              emissiveMap: originalMaterial.map,
             });
           }
         });

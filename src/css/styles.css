@@ -158,10 +158,11 @@ body {
 
 #navigation {
   z-index: 56;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   padding: 15px;
+  padding-right: 0;
   padding-left: 30px;
   padding-bottom: 30px;
   font-family: 'Orbitron', sans-serif;
@@ -169,7 +170,7 @@ body {
 
 }
 
-#navigation>* {
+#navigation * {
   -webkit-user-drag: none;
   -khtml-user-drag: none;
   -moz-user-drag: none;
@@ -183,6 +184,8 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  overflow: visible;
 }
 
 #navigation li {
@@ -196,8 +199,6 @@ body {
   color: #cccccc9f;
   transition: .25s ease;
   user-select: none;
-
-
 }
 
 #navigation a:hover {
@@ -210,6 +211,81 @@ body {
   color: #ebebeb;
   font-weight: bold;
   font-size: 1.2rem;
+}
+
+:root {
+  --transition-speed: 0.5s;
+}
+
+.projects-dropdown {
+  max-height: 0;
+  overflow: hidden !important;
+  white-space: nowrap;
+
+  transition: max-height var(--transition-speed) ease, transform var(--transition-speed) ease;
+
+  a {
+    font-size: 0.9rem !important;
+    color: #ccc;
+    transition: color 0.3s ease, font-size 0.3s ease;
+
+    &:hover {
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.15rem !important;
+    }
+  }
+
+  &:has(+a.active) li {
+    transform: translateX(10px);
+    transition: transform var(--transition-speed) ease;
+  }
+
+  &:has(+a) li {
+    transform: translateX(5px);
+    transition: transform var(--transition-speed) ease;
+  }
+
+  &:has(+a.active) {
+    max-height: 500px;
+    transform: translateY(0);
+  }
+}
+
+
+.projects-dropdown {
+  max-height: 0;
+  overflow: hidden !important;
+  white-space: nowrap;
+  transition: max-height var(--transition-speed) ease, transform var(--transition-speed) ease;
+
+  a {
+    font-size: 0.9rem !important;
+    color: #ccc;
+    transition: color 0.3s ease, font-size 0.3s ease;
+
+    &:hover {
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.15rem !important;
+    }
+  }
+
+  &:has(+a.active) li {
+    transform: translateX(10px);
+    transition: transform var(--transition-speed) ease;
+  }
+
+  &:has(+a) li {
+    transform: translateX(5px);
+    transition: transform var(--transition-speed) ease;
+    margin-right: 10px;
+  }
+
+  &:has(+a.active) {
+    max-height: 500px;
+    transform: translateY(0);
+  }
 }
 
 
