@@ -24,7 +24,7 @@ Welcome to my **personal portfolio**! 🚀 This website is a showcase of my proj
 ## 🚀 How to Run
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/astronut_portfolio.git
+   git clone https://github.com/TBG101/Three.js-Personal-Portfolio.git
    ```
 2. Navigate to the project directory:
    ```bash
@@ -45,18 +45,6 @@ Welcome to my **personal portfolio**! 🚀 This website is a showcase of my proj
 ## 📂 Folder Structure
 - **public/**: Contains assets like images, 3D models, and textures.
 - **src/**: Contains source code including JavaScript modules and CSS files.
-
----
-
-## 🎨 Icons
-
-The `public/icons/` directory contains various icons used throughout the portfolio. Below is a list of the available icons and their purposes:
-
-- **keys.png**: Represents key bindings or shortcuts.
-- **press-button.png**: Indicates a button press action.
-- **scroll.png**: Suggests scrolling actions or gestures.
-
-These icons enhance the user interface and provide visual cues for user interactions.
 
 ---
 
