@@ -72,6 +72,11 @@ export function createDetailedDescription(data, index) {
     techStackList.appendChild(li);
   });
 
+  viewProject.addEventListener("mouseover", () => {
+    const audio = new Audio("./sounds/hover.mp3");
+    audio.volume = 0.1;
+    audio.play();
+  });
   if (data.github) viewProject.href = data.github;
   else if (data.customData) {
     data.customData.links.forEach((links) => {
@@ -80,6 +85,13 @@ export function createDetailedDescription(data, index) {
       buttonClone.href = links.url;
       buttonClone.textContent = links.title;
       clone.children[0].appendChild(buttonContainerClone);
+      buttonClone.addEventListener("mouseover", () => {
+        const audio = new Audio("./sounds/hover.mp3");
+        audio.volume = 0.1;
+        audio.play();
+      });
+
+
     });
     viewProject.parentElement.remove();
   }
@@ -109,7 +121,7 @@ async function createOrbitTech(
         techMesh = gltf.scene.children[0];
         resolve();
       },
-      () => {},
+      () => { },
       (error) => {
         console.error("Error loading tech mesh", error);
         reject();
@@ -253,23 +265,23 @@ export async function createPlanet(
     }),
     specularMap: specularMap
       ? await new Promise((res) => {
-          loader.load(
-            specularMap,
-            (texture) => res(texture),
-            undefined,
-            (error) => console.error("Error loading texture", error)
-          );
-        })
+        loader.load(
+          specularMap,
+          (texture) => res(texture),
+          undefined,
+          (error) => console.error("Error loading texture", error)
+        );
+      })
       : null,
     bumpMap: bumpMap
       ? await new Promise((res) => {
-          loader.load(
-            bumpMap,
-            (texture) => res(texture),
-            undefined,
-            (error) => console.error("Error loading texture", error)
-          );
-        })
+        loader.load(
+          bumpMap,
+          (texture) => res(texture),
+          undefined,
+          (error) => console.error("Error loading texture", error)
+        );
+      })
       : null,
     bumpScale: bumpScale ?? null,
   });

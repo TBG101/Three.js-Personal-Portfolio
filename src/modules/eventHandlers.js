@@ -14,7 +14,7 @@ import { moveAstronaut } from "./astronaut";
  * @property {string} name
  */
 
-export function handleResize(camera, renderer, labelRenderer) {
+export function handleResize(camera, renderer, labelRenderer, outlinePass, bloomEffect, ssaaPass, composer) {
   const width = window.innerWidth;
   const height = window.innerHeight;
   camera.aspect = width / height;
@@ -23,6 +23,18 @@ export function handleResize(camera, renderer, labelRenderer) {
   renderer.setPixelRatio(window.devicePixelRatio);
   if (labelRenderer) {
     labelRenderer.setSize(width, height);
+  }
+  if (outlinePass) {
+    outlinePass.setSize(width, height);
+  }
+  if (bloomEffect) {
+    bloomEffect.setSize(width, height);
+  }
+  if (ssaaPass) {
+    ssaaPass.setSize(width, height);
+  }
+  if (composer) {
+    composer.setSize(width, height);
   }
 }
 
@@ -114,8 +126,8 @@ export function handleClick(
   if (state.goToSection > -1) return;
 
   if (!state.canMove) {
-    state.canMove = true; 
-    state.currentFocus = -1; 
+    state.canMove = true;
+    state.currentFocus = -1;
     const mouse = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -241,3 +253,35 @@ export function handleClick(
     });
   }
 }
+
+/**
+ * @param {KeyboardEvent} event
+ * @param {THREE.Mesh} astronaut
+ * @param {THREE.Camera} camera
+ * @param {{canMove: boolean, currentFocus: number, contactShown: boolean}} state
+ * @description Handle the keydown event for astronaut movement
+ */
+export function handleKeyDown(event, astronaut, camera, state) {
+  if (state.goToSection > -1) return;
+  if (!state.canMove) return;
+  if (!astronaut) return;
+  if (state.contactShown) return;
+
+  const deltaY = event.key === "ArrowUp" ? 2 : event.key === "ArrowDown" ? -2 : 0;
+  if (deltaY === 0) return;
+
+  const newAstronautY = astronaut.position.y + deltaY;
+  const clampedAstronautY = Math.max(minY, Math.min(maxY, newAstronautY));
+  moveAstronaut(
+    astronaut,
+    camera,
+    new THREE.Vector3(
+      astronaut.position.x,
+      clampedAstronautY,
+      astronaut.position.z
+    )
+  );
+  state.currentFocus = -1;
+}
+
+

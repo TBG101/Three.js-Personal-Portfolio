@@ -17,6 +17,7 @@ import {
   handleResize,
   handleScroll,
   handleClick,
+  handleKeyDown,
 } from "./modules/eventHandlers";
 import {
   dialogData,
@@ -39,6 +40,10 @@ import {
   animateAsteroids,
 } from "./modules/animations";
 
+
+
+
+
 /**
  * keep hold of the current focus
  * -1 means on astronaut
@@ -58,6 +63,7 @@ const scene = initScene();
 const renderer = initRenderer();
 const camera = initCamera();
 scene.add(camera);
+
 
 const renderer3D = new CSS3DRenderer();
 renderer3D.setSize(window.innerWidth, window.innerHeight);
@@ -135,7 +141,7 @@ techStack.children.forEach((stack) => {
 selection.push(beacon);
 
 // Post Processing
-const { composer, bokehPass } = postProccesing(
+const { composer, bokehPass, outlinePass, bloomEffect, ssaaPass } = postProccesing(
   scene,
   camera,
   renderer,
@@ -146,6 +152,19 @@ const { composer, bokehPass } = postProccesing(
 const stats = new Stats();
 stats.showPanel(0);
 document.body.appendChild(stats.dom);
+
+// Load background music
+const audioLoader = new THREE.AudioLoader();
+const listener = new THREE.AudioListener();
+camera.add(listener);
+const backgroundMusic = new THREE.Audio(listener);
+
+audioLoader.load("./music/space.mp3", (buffer) => {
+  backgroundMusic.setBuffer(buffer);
+  backgroundMusic.setLoop(true);
+  backgroundMusic.setVolume(0.5);
+  backgroundMusic.play();
+});
 
 // function for navigation
 let isMovingToSection = false;
@@ -175,7 +194,7 @@ const handleGoto = (minY, maxY) => {
 };
 
 window.addEventListener("resize", () =>
-  handleResize(camera, renderer, renderer3D)
+  handleResize(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer)
 );
 
 window.addEventListener("wheel", (event) =>
@@ -184,6 +203,10 @@ window.addEventListener("wheel", (event) =>
 
 window.addEventListener("click", (event) =>
   handleClick(event, camera, planets, state, techStack, bokehPass, beacon)
+);
+
+document.addEventListener("keydown", (event) =>
+  handleKeyDown(event, astronaut, camera, state)
 );
 
 const nav = document.getElementById("navigation");
@@ -269,7 +292,7 @@ gsap.to(camera.position, {
 });
 
 scene.add(initInstructions());
-
+document.getElementById("project-template").remove();
 // animate needed data
 /** @type {CSS3DObject[]} **/
 let allDialogsShown = [];

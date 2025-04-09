@@ -12,6 +12,7 @@ import {
 } from "three/examples/jsm/Addons.js";
 import { SSAARenderPass } from "three/addons/postprocessing/SSAARenderPass.js";
 import { createDetailedDescription } from "./planets";
+import { detectDeviceTier } from "./utils";
 
 export function initScene() {
   return new THREE.Scene();
@@ -196,6 +197,8 @@ export function randomAsteroids(scene, count = 50, spread = 250) {
 }
 
 export function postProccesing(scene, camera, renderer, selection) {
+  const deviceTier = detectDeviceTier()
+
   // Postprocessing
   const composer = new EffectComposer(renderer);
 
@@ -220,13 +223,8 @@ export function postProccesing(scene, camera, renderer, selection) {
   outlinePass.hiddenEdgeColor.set(0x000000);
   outlinePass.selectedObjects = selection;
 
-  // const smaaPass = new SMAAPass(
-  //   window.innerWidth * renderer.getPixelRatio(),
-  //   window.innerHeight * renderer.getPixelRatio()
-  // );
-
   const ssaaPass = new SSAARenderPass(scene, camera);
-  ssaaPass.sampleLevel = 1;
+
 
   let bokehPass = new BokehPass(scene, camera, {
     focus: 13.5,
@@ -238,14 +236,25 @@ export function postProccesing(scene, camera, renderer, selection) {
   afterimage.uniforms["damp"].value = 0.6;
 
   composer.addPass(renderPass);
-  composer.addPass(ssaaPass);
-  // composer.addPass(smaaPass);
-  composer.addPass(bloomEffect);
-  composer.addPass(bokehPass);
-  composer.addPass(outlinePass);
-  composer.addPass(afterimage);
+  if (deviceTier === 3) {
+    ssaaPass.sampleLevel = 1;
+    composer.addPass(ssaaPass);
+    composer.addPass(bloomEffect);
+    composer.addPass(bokehPass);
+    composer.addPass(outlinePass);
+    composer.addPass(afterimage);
 
+  }
+  if (deviceTier === 2) {
+    ssaaPass.sampleLevel = 1;
+    composer.addPass(ssaaPass);
+    composer.addPass(bloomEffect);
+    composer.addPass(outlinePass);
+  }
+  if (deviceTier === 1) {
+    composer.addPass(bloomEffect);
+    composer.addPass(outlinePass);
+  }
   composer.addPass(new OutputPass());
-
-  return { composer, bokehPass };
+  return { composer, bokehPass, outlinePass, bloomEffect, ssaaPass };
 }
