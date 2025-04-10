@@ -55,6 +55,114 @@ const state = {
   goToPlanet: -1, // -1 mean no planet, n mean go to planet n
 };
 
+function setupEventListeners(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer, astronaut, state, planets, techStack, beacon, bokehPass) {
+  window.addEventListener("resize", () =>
+    handleResize(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer)
+  );
+
+  window.addEventListener("wheel", (event) =>
+    handleScroll(event, astronaut, camera, state, bokehPass)
+  );
+
+  window.addEventListener("click", (event) =>
+    handleClick(event, camera, planets, state, techStack, bokehPass, beacon)
+  );
+
+  document.addEventListener("keydown", (event) =>
+    handleKeyDown(event, astronaut, camera, state)
+  );
+}
+
+function setupNavigation(nav, navItems, state) {
+  nav.addEventListener("mousemove", (event) => {
+    const rect = nav.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 30;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * -10;
+
+    nav.style.transform = `rotateX(${y}deg) rotateY(${x}deg)`;
+  });
+
+  nav.addEventListener("mouseleave", () => {
+    gsap.to(nav.style, {
+      duration: 0.5,
+      ease: "power2.out",
+      transform: "rotateX(0deg) rotateY(0deg)",
+    });
+  });
+
+  navItems.forEach((navItem, index) => {
+    if (navItem.id === "nav-projects-dropdown-container") return;
+
+    navItem.addEventListener("click", () => {
+      if (
+        state.canMove === false ||
+        state.contactShown ||
+        state.currentFocus !== -1
+      )
+        return;
+      navItems.forEach((item) => item.classList.remove("active"));
+      navItem.classList.add("active");
+      state.goToSection = index;
+    });
+  });
+}
+
+function setupPlanetNavigation(navigationPlanets, planetData, state) {
+  planetData.reverse().forEach((planet, index) => {
+    const planetElement = document.createElement("li");
+    planetElement.id = index;
+    const planetLink = document.createElement("a");
+    planetLink.className = "nav-item";
+    planetLink.innerText = planet.name;
+
+    planetLink.addEventListener("click", () => {
+      if (state.canMove === false || state.contactShown) return;
+      state.goToPlanet = index;
+    });
+
+    planetElement.appendChild(planetLink);
+    navigationPlanets.appendChild(planetElement);
+  });
+}
+
+
+// Automatically play music on page load
+function autoPlayMusic(audioLoader, listener) {
+  const backgroundMusic = new THREE.Audio(listener);
+  audioLoader.load("./music/space.mp3", (buffer) => {
+    backgroundMusic.setBuffer(buffer);
+    backgroundMusic.setLoop(true);
+    backgroundMusic.setVolume(0.5);
+    backgroundMusic.play();
+  });
+  return backgroundMusic;
+}
+
+// Added a function to handle music toggle
+function setupMusicToggle(audioLoader, listener) {
+  const musicToggle = document.getElementById("music-toggle");
+  const backgroundMusic = autoPlayMusic(audioLoader, listener);
+
+  musicToggle.addEventListener("click", () => {
+    if (backgroundMusic.isPlaying) {
+      backgroundMusic.stop();
+      musicToggle.innerText = "Play Music";
+    } else {
+      audioLoader.load("./music/space.mp3", (buffer) => {
+        backgroundMusic.setBuffer(buffer);
+        backgroundMusic.setLoop(true);
+        backgroundMusic.setVolume(0.5);
+        backgroundMusic.play();
+        musicToggle.innerText = "Stop Music";
+      });
+    }
+  });
+
+  return backgroundMusic;
+}
+
+
+
 async function main() {
 
   // Scene Setup
@@ -71,11 +179,10 @@ async function main() {
   // Append to DOM
   document.body.appendChild(renderer3D.domElement);
   document.body.appendChild(renderer.domElement);
-  // document.body.appendChild(labelRenderer.domElement);
 
-  // Helpers
-  const axesHelper = new THREE.AxesHelper(5);
-  scene.add(axesHelper);
+  // // Helpers
+  // const axesHelper = new THREE.AxesHelper(5);
+  // scene.add(axesHelper);
 
   // Lights
   initLights(scene);
@@ -156,14 +263,21 @@ async function main() {
   const audioLoader = new THREE.AudioLoader();
   const listener = new THREE.AudioListener();
   camera.add(listener);
-  const backgroundMusic = new THREE.Audio(listener);
 
-  audioLoader.load("./music/space.mp3", (buffer) => {
-    backgroundMusic.setBuffer(buffer);
-    backgroundMusic.setLoop(true);
-    backgroundMusic.setVolume(0.5);
-    backgroundMusic.play();
-  });
+
+  // Setup music toggle & auto play
+  const backgroundMusic = setupMusicToggle(audioLoader, listener, camera);
+
+  // Setup Event Listeners
+  setupEventListeners(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer, astronaut, state, planets, techStack, beacon, bokehPass);
+
+  // Setup Navigation
+  const nav = document.getElementById("navigation");
+  const navItems = document.querySelectorAll(".nav-item");
+  setupNavigation(nav, navItems, state);
+
+  const navigationPlanets = document.getElementById("nav-projects-dropdown");
+  setupPlanetNavigation(navigationPlanets, planetData, state);
 
   // function for navigation
   let isMovingToSection = false;
@@ -192,74 +306,6 @@ async function main() {
     }
   };
 
-  window.addEventListener("resize", () =>
-    handleResize(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer)
-  );
-
-  window.addEventListener("wheel", (event) =>
-    handleScroll(event, astronaut, camera, state, bokehPass)
-  );
-
-  window.addEventListener("click", (event) =>
-    handleClick(event, camera, planets, state, techStack, bokehPass, beacon)
-  );
-
-  document.addEventListener("keydown", (event) =>
-    handleKeyDown(event, astronaut, camera, state)
-  );
-
-  const nav = document.getElementById("navigation");
-  nav.addEventListener("mousemove", (event) => {
-    const rect = nav.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 30;
-    const y = ((event.clientY - rect.top) / rect.height - 0.5) * -10;
-
-    nav.style.transform = `rotateX(${y}deg) rotateY(${x}deg)`;
-  });
-
-  nav.addEventListener("mouseleave", () => {
-    gsap.to(nav.style, {
-      duration: 0.5,
-      ease: "power2.out",
-      transform: "rotateX(0deg) rotateY(0deg)",
-    });
-  });
-
-  const navItems = document.querySelectorAll(".nav-item");
-  navItems.forEach((navItem, index) => {
-    if (navItem.id === "nav-projects-dropdown-container") return;
-
-    navItem.addEventListener("click", () => {
-      if (
-        state.canMove === false ||
-        state.contactShown ||
-        state.currentFocus !== -1
-      )
-        return;
-      navItems.forEach((item) => item.classList.remove("active"));
-      navItem.classList.add("active");
-      state.goToSection = index;
-    });
-  });
-
-  const navigationPlanets = document.getElementById("nav-projects-dropdown");
-
-  planetData.reverse().forEach((planet, index) => {
-    const planetElement = document.createElement("li");
-    planetElement.id = index;
-    const planetLink = document.createElement("a");
-    planetLink.className = "nav-item";
-    planetLink.innerText = planet.name;
-
-    planetLink.addEventListener("click", () => {
-      if (state.canMove === false || state.contactShown) return;
-      state.goToPlanet = index;
-    });
-
-    planetElement.appendChild(planetLink);
-    navigationPlanets.appendChild(planetElement);
-  });
-
   // astronaut animations
   const animation = animations[0];
   const mixer = new THREE.AnimationMixer(astronaut);
@@ -282,7 +328,7 @@ async function main() {
   }
 
 
-  scene.add(initInstructions());  
+  scene.add(initInstructions());
   /** @type {CSS3DObject[]} **/
   let allDialogsShown = [];
 
@@ -450,4 +496,4 @@ async function main() {
   animate();
 }
 
-main()
+main();
