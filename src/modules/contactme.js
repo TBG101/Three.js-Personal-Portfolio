@@ -22,9 +22,7 @@ export async function createBeacon(scene, beaconPosition) {
 
         resolve(beacon);
       },
-      (xhr) => {
-        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-      },
+      undefined,
       (error) => {
         console.error("An error happened", error);
         reject(error);

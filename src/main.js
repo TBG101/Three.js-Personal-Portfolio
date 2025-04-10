@@ -281,18 +281,8 @@ async function main() {
     }, 1500);
   }
 
-  // Camera Animation to astronaut
-  gsap.to(camera.position, {
-    ease: "power4.out",
-    duration: 1,
-    x: 0,
-    y: astronaut.position.y + 2,
-    z: astronaut.position.z + 15,
-  });
 
-  scene.add(initInstructions());
-  document.getElementById("project-template").remove();
-  // animate needed data
+  scene.add(initInstructions());  
   /** @type {CSS3DObject[]} **/
   let allDialogsShown = [];
 
@@ -308,6 +298,16 @@ async function main() {
   const boundingBox = new THREE.Box3().setFromObject(astronaut);
   astroHeight = boundingBox.max.y - boundingBox.min.y;
   const clock = new THREE.Clock();
+
+  // Camera Animation to astronaut
+  gsap.to(camera.position, {
+    ease: "power4.out",
+    duration: 1,
+    x: 0,
+    y: astronaut.position.y + 2,
+    z: astronaut.position.z + 15,
+  });
+
 
   // Animation Loop
   function animate() {

@@ -46,7 +46,6 @@ export function handleResize(camera, renderer, labelRenderer, outlinePass, bloom
  * @param {BokehPass} bokehPass
  *  **/
 export function handleScroll(event, astronaut, camera, state, bokehPass) {
-  console.log("scrolling");
   if (state.goToSection > -1) return;
   if (!state.canMove) return;
   if (event.deltaY === 0) return;
