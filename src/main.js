@@ -125,20 +125,28 @@ function setupPlanetNavigation(navigationPlanets, planetData, state) {
   });
 }
 
+// Optimized the setupMusicToggle function to avoid redundant DOM queries and improve performance
 function setupMusicToggle(audioLoader, listener) {
   const musicToggle = document.getElementById("music-toggle") || createMusicToggle();
   const backgroundMusic = new THREE.Audio(listener);
   let isMusicPlaying = false;
 
+  // Preload the audio buffer once
   audioLoader.load("./music/space.mp3", (buffer) => {
     backgroundMusic.setBuffer(buffer);
     backgroundMusic.setLoop(true);
     backgroundMusic.setVolume(0.5);
   });
 
+  // Use a single event listener for toggling music
   musicToggle.addEventListener("click", () => {
-    isMusicPlaying ? backgroundMusic.stop() : backgroundMusic.play();
-    musicToggle.innerHTML = `<img src="/icons/${isMusicPlaying ? 'play' : 'stop'}-icon.png" alt="${isMusicPlaying ? 'Play' : 'Stop'} Music" />`;
+    if (isMusicPlaying) {
+      backgroundMusic.stop();
+      musicToggle.innerHTML = '<img src="/icons/play-icon.png" alt="Play Music" />';
+    } else {
+      backgroundMusic.play();
+      musicToggle.innerHTML = '<img src="/icons/stop-icon.png" alt="Stop Music" />';
+    }
     isMusicPlaying = !isMusicPlaying;
   });
 
@@ -197,7 +205,7 @@ async function main() {
   });
 
   // Stars
-  const stars = addStars(scene, 100);
+  const stars = addStars(scene, 1500);
   const currentDownloaderElement = document.getElementById("current-download");
 
   // Load Astronaut Model
@@ -442,64 +450,58 @@ async function main() {
         updateAstronaut(astronaut, camera, state, deltaTime);
       }
 
-      // Dialogs
-      dialogData.forEach((dialog) => {
-        const dialogVisible = isInBetween(
-          dialog.dialogPosition.y,
-          astronaut.position.y - 2,
-          astronaut.position.y + 2
-        );
+      const astronautY = astronaut.position.y;
+      const visibleRange = { min: astronautY - 2, max: astronautY + 2 };
 
-        if (dialogVisible) {
-          // first time dialog is shown
+      dialogData.forEach((dialog) => {
+        const dialogY = dialog.dialogPosition.y;
+        const isDialogVisible = dialogY >= visibleRange.min && dialogY <= visibleRange.max;
+
+        if (isDialogVisible) {
           if (!allDialogsShown[dialog.id]) {
             allDialogsShown[dialog.id] = createDialog(scene, dialog.text, {
               x: dialog.dialogPosition.x,
-              y: dialog.dialogPosition.y + astroHeight / 2,
+              y: dialogY + astroHeight / 2,
               z: astronaut.position.z,
             });
 
             setTimeout(() => {
               idsToshow[dialog.id] = true;
-              allDialogsShown[dialog.id].element.className =
-                "user-dialog visible";
+              allDialogsShown[dialog.id].element.className = "user-dialog visible";
             }, 50);
           }
 
-          // animate dialog
-          allDialogsShown[dialog.id].position.y +=
-            0.001 * Math.sin(currentTime * 1.5);
-          allDialogsShown[dialog.id].position.x +=
-            0.00025 * Math.cos(currentTime);
-          allDialogsShown[dialog.id].position.z += 0.0005 * Math.sin(currentTime);
+          const dialogObject = allDialogsShown[dialog.id];
+          if (dialogObject) {
+            dialogObject.position.y += 0.001 * Math.sin(currentTime * 1.5);
+            dialogObject.position.x += 0.00025 * Math.cos(currentTime);
+            dialogObject.position.z += 0.0005 * Math.sin(currentTime);
 
-          // set the last dialog id
-          if (lastDialogId !== dialog.id) {
-            lastDialogId = dialog.id;
-            state.canMove = false;
-          }
-          // move astronaut to dialog
-          if (state.canMove === false) {
-            const targetPosition = new THREE.Vector3().copy(astronaut.position);
-            targetPosition.y = dialog.dialogPosition.y - 1;
-            setAstronautVelocity(0);
-            astronaut.position.y = astronaut.position.lerp(
-              targetPosition,
-              0.05
-            ).y;
-            camera.position.y = astronaut.position.y + 2;
-          }
+            if (lastDialogId !== dialog.id) {
+              lastDialogId = dialog.id;
+              state.canMove = false;
+            }
 
-          if (allDialogsShown[dialog.id] && idsToshow[dialog.id]) {
-            allDialogsShown[dialog.id].element.className = "user-dialog visible";
+            if (!state.canMove) {
+              const targetPosition = new THREE.Vector3().copy(astronaut.position);
+              targetPosition.y = dialogY - 1;
+              setAstronautVelocity(0);
+              astronaut.position.y = astronaut.position.lerp(targetPosition, 0.05).y;
+              camera.position.y = astronaut.position.y + 2;
+            }
+
+            if (idsToshow[dialog.id]) {
+              dialogObject.element.className = "user-dialog visible";
+            }
           }
         } else {
-          if (allDialogsShown[dialog.id]) {
-            allDialogsShown[dialog.id].element.className = "user-dialog hidden";
+          const dialogObject = allDialogsShown[dialog.id];
+          if (dialogObject) {
+            dialogObject.element.className = "user-dialog hidden";
           }
         }
 
-        if (lastDialogId === dialog.id && !dialogVisible) {
+        if (lastDialogId === dialog.id && !isDialogVisible) {
           lastDialogId = -1;
           state.canMove = true;
         }

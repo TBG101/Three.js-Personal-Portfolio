@@ -23,6 +23,11 @@ export function createDialog(scene, msg, position = { x: 0, y: 0, z: 0 }) {
   cursorSpan.id = "text-cursor";
   cursorSpan.textContent = "|";
 
+  const icon = document.createElement("img");
+  icon.src = "./icons/press-button.png";
+  icon.id = "dialog-icon";
+  div.appendChild(icon);
+
   function typeWriterEffect(text, element, speed = 40) {
     let i = 0;
     function type() {
