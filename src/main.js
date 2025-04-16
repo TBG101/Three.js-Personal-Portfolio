@@ -125,43 +125,33 @@ function setupPlanetNavigation(navigationPlanets, planetData, state) {
   });
 }
 
-
-// Automatically play music on page load
-function autoPlayMusic(audioLoader, listener) {
+function setupMusicToggle(audioLoader, listener) {
+  const musicToggle = document.getElementById("music-toggle") || createMusicToggle();
   const backgroundMusic = new THREE.Audio(listener);
+  let isMusicPlaying = false;
+
   audioLoader.load("./music/space.mp3", (buffer) => {
     backgroundMusic.setBuffer(buffer);
     backgroundMusic.setLoop(true);
     backgroundMusic.setVolume(0.5);
-    backgroundMusic.play();
   });
-  return backgroundMusic;
-}
-
-// Added a function to handle music toggle
-function setupMusicToggle(audioLoader, listener) {
-  const musicToggle = document.getElementById("music-toggle");
-  const backgroundMusic = autoPlayMusic(audioLoader, listener);
 
   musicToggle.addEventListener("click", () => {
-    if (backgroundMusic.isPlaying) {
-      backgroundMusic.stop();
-      musicToggle.innerText = "Play Music";
-    } else {
-      audioLoader.load("./music/space.mp3", (buffer) => {
-        backgroundMusic.setBuffer(buffer);
-        backgroundMusic.setLoop(true);
-        backgroundMusic.setVolume(0.5);
-        backgroundMusic.play();
-        musicToggle.innerText = "Stop Music";
-      });
-    }
+    isMusicPlaying ? backgroundMusic.stop() : backgroundMusic.play();
+    musicToggle.innerHTML = `<img src="/icons/${isMusicPlaying ? 'play' : 'stop'}-icon.png" alt="${isMusicPlaying ? 'Play' : 'Stop'} Music" />`;
+    isMusicPlaying = !isMusicPlaying;
   });
 
   return backgroundMusic;
 }
 
-
+function createMusicToggle() {
+  const musicToggle = document.createElement("button");
+  musicToggle.id = "music-toggle";
+  musicToggle.innerHTML = '<img src="/icons/play-icon.png" alt="Play Music" />';
+  document.body.appendChild(musicToggle);
+  return musicToggle;
+}
 
 async function main() {
 
@@ -180,16 +170,12 @@ async function main() {
   document.body.appendChild(renderer3D.domElement);
   document.body.appendChild(renderer.domElement);
 
-  // // Helpers
-  // const axesHelper = new THREE.AxesHelper(5);
-  // scene.add(axesHelper);
-
   // Lights
   initLights(scene);
 
   // Background - HDR Space Texture
   const loader = new THREE.TextureLoader();
-  loader.load("./textures/space_blue.png", (texture) => {
+  loader.load("./textures/space_blue.webp", (texture) => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.setScalar(1);
@@ -211,7 +197,7 @@ async function main() {
   });
 
   // Stars
-  const stars = addStars(scene, 2000);
+  const stars = addStars(scene, 100);
   const currentDownloaderElement = document.getElementById("current-download");
 
   // Load Astronaut Model
@@ -234,7 +220,7 @@ async function main() {
 
   // astroids
   let animateAstrroProgress = 0;
-  const { curve, instancedMesh } = randomAsteroids(scene, 200);
+  const { curve, instancedMesh } = randomAsteroids(scene, 1);
 
   // techStack
   currentDownloaderElement.innerText = "Downloading TechStacks";
@@ -265,8 +251,57 @@ async function main() {
   camera.add(listener);
 
 
+
+  gsap.to("#loader", {
+    opacity: 0,
+    duration: 1,
+    ease: "power2.out",
+  });
+  gsap.to("#current-download", {
+    opacity: 0,
+    duration: 1,
+    ease: "power2.out",
+    onComplete: () => {
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("current-download").style.display = "none";
+      const musicRequest = document.getElementById("music-request");
+      musicRequest.style.display = "block";
+      setTimeout(() => {
+        musicRequest.style.opacity = 1;
+      }, 100);
+    }
+  });
+
   // Setup music toggle & auto play
   const backgroundMusic = setupMusicToggle(audioLoader, listener, camera);
+
+  // Handle music confirmation buttons
+  const yesMusicButton = document.getElementById("yes-music");
+  const noMusicButton = document.getElementById("no-music");
+  const loadingElement = document.getElementById("loading");
+  const musicToggle = document.getElementById("music-toggle");
+
+  yesMusicButton.addEventListener("click", () => {
+    backgroundMusic.play();
+    musicToggle.innerHTML = '<img src="/icons/stop-icon.png" alt="Stop Music" />';
+    loadingElement.style.opacity = 0;
+    setTimeout(() => {
+      loadingElement.style.display = "none";
+      loadingElement.style.pointerEvents = "none";
+      musicToggle.style.display = "block";
+    }, 1000);
+  });
+
+  noMusicButton.addEventListener("click", () => {
+    backgroundMusic.stop();
+    musicToggle.innerHTML = '<img src="/icons/play-icon.png" alt="Play Music" />';
+    loadingElement.style.opacity = 0;
+    setTimeout(() => {
+      loadingElement.style.display = "none";
+      loadingElement.style.pointerEvents = "none";
+      musicToggle.style.display = "block";
+    }, 1000);
+  });
 
   // Setup Event Listeners
   setupEventListeners(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer, astronaut, state, planets, techStack, beacon, bokehPass);
@@ -316,17 +351,6 @@ async function main() {
   renderer3D.domElement.childNodes.forEach((child) => {
     child.style.pointerEvents = "none";
   });
-
-  {
-    const tempElement = document.getElementById("loading");
-    tempElement.style.opacity = 0;
-    tempElement.style.transform = "TranslateY(100%)";
-
-    setTimeout(() => {
-      tempElement.style.display = "none";
-    }, 1500);
-  }
-
 
   scene.add(initInstructions());
   /** @type {CSS3DObject[]} **/
@@ -485,8 +509,6 @@ async function main() {
     // render
     renderer.render(scene, camera);
     renderer3D.render(scene, camera);
-    // labelRenderer.render(scene, camera);
-    // controls.update();
     composer.render();
     stats.end();
 

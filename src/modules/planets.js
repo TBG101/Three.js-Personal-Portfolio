@@ -252,7 +252,7 @@ export async function createPlanet(
   scene.add(basePlanetGroup);
 
   const loader = new THREE.TextureLoader();
-  const geometry = new THREE.IcosahedronGeometry(1, 12);
+  const geometry = new THREE.IcosahedronGeometry(1, 10);
 
   const material = new THREE.MeshPhongMaterial({
     map: await new Promise((res) => {

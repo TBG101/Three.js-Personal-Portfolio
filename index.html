@@ -9,15 +9,28 @@
   </head>
   <body>
     <script type="module" src="/src/main.js"></script>
+
     <div id="loading">
-      <span class="loader"></span>
+      <span id="loader"></span>
       <span id="current-download"></span>
+      <div id="music-request">
+        Would you like to play music?
+        <button id="yes-music" class="btn">Yes</button>
+        <button id="no-music" class="btn">No</button>
+        <p>You can always disable this at the top right corner</p>
+      </div>
     </div>
+
     <div
       id="music-control"
-      style="position: fixed; top: 10px; right: 10px; z-index: 1000"
+      style="
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+      "
     >
-      <button id="music-toggle" class="btn">Play Music</button>
+      <button id="music-toggle" style="display: none;"><img src="/icons/play-icon.png" alt="Play Music" /></button>
     </div>
     <nav id="navigation">
       <ul>
