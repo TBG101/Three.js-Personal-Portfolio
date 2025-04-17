@@ -187,8 +187,14 @@ function createMusicToggle() {
 
 async function main() {
   // check screen size
-
   if (window.screen.width < 1000 || window.screen.height < 600) {
+    document.body.innerHTML = ```<div id="small-screen-indicator">
+      <p>
+        This website is not optimized for small screens. Please use a larger
+        screen for the best experience.
+      </p>
+    </div>```;
+    
     document.getElementById("small-screen-indicator").style.display = "block";
     return;
   }
