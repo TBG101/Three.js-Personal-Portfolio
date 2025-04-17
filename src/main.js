@@ -40,7 +40,6 @@ import {
   animateAsteroids,
 } from "./modules/animations";
 
-
 /**
  * keep hold of the current focus
  * -1 means on astronaut
@@ -55,9 +54,31 @@ const state = {
   goToPlanet: -1, // -1 mean no planet, n mean go to planet n
 };
 
-function setupEventListeners(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer, astronaut, state, planets, techStack, beacon, bokehPass) {
+function setupEventListeners(
+  camera,
+  renderer,
+  renderer3D,
+  outlinePass,
+  bloomEffect,
+  ssaaPass,
+  composer,
+  astronaut,
+  state,
+  planets,
+  techStack,
+  beacon,
+  bokehPass
+) {
   window.addEventListener("resize", () =>
-    handleResize(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer)
+    handleResize(
+      camera,
+      renderer,
+      renderer3D,
+      outlinePass,
+      bloomEffect,
+      ssaaPass,
+      composer
+    )
   );
 
   window.addEventListener("wheel", (event) =>
@@ -127,7 +148,8 @@ function setupPlanetNavigation(navigationPlanets, planetData, state) {
 
 // Optimized the setupMusicToggle function to avoid redundant DOM queries and improve performance
 function setupMusicToggle(audioLoader, listener) {
-  const musicToggle = document.getElementById("music-toggle") || createMusicToggle();
+  const musicToggle =
+    document.getElementById("music-toggle") || createMusicToggle();
   const backgroundMusic = new THREE.Audio(listener);
   let isMusicPlaying = false;
 
@@ -142,10 +164,12 @@ function setupMusicToggle(audioLoader, listener) {
   musicToggle.addEventListener("click", () => {
     if (isMusicPlaying) {
       backgroundMusic.stop();
-      musicToggle.innerHTML = '<img src="/icons/play-icon.png" alt="Play Music" />';
+      musicToggle.innerHTML =
+        '<img src="/icons/play-icon.png" alt="Play Music" />';
     } else {
       backgroundMusic.play();
-      musicToggle.innerHTML = '<img src="/icons/stop-icon.png" alt="Stop Music" />';
+      musicToggle.innerHTML =
+        '<img src="/icons/stop-icon.png" alt="Stop Music" />';
     }
     isMusicPlaying = !isMusicPlaying;
   });
@@ -162,13 +186,18 @@ function createMusicToggle() {
 }
 
 async function main() {
+  // check screen size
+
+  if (window.screen.width < 1000 || window.screen.height < 600) {
+    document.getElementById("small-screen-indicator").style.display = "block";
+    return;
+  }
 
   // Scene Setup
   const scene = initScene();
   const renderer = initRenderer();
   const camera = initCamera();
   scene.add(camera);
-
 
   const renderer3D = new CSS3DRenderer();
   renderer3D.setSize(window.innerWidth, window.innerHeight);
@@ -241,12 +270,8 @@ async function main() {
   selection.push(beacon);
 
   // Post Processing
-  const { composer, bokehPass, outlinePass, bloomEffect, ssaaPass } = postProccesing(
-    scene,
-    camera,
-    renderer,
-    selection
-  );
+  const { composer, bokehPass, outlinePass, bloomEffect, ssaaPass } =
+    postProccesing(scene, camera, renderer, selection);
 
   // Stats
   const stats = new Stats();
@@ -257,8 +282,6 @@ async function main() {
   const audioLoader = new THREE.AudioLoader();
   const listener = new THREE.AudioListener();
   camera.add(listener);
-
-
 
   gsap.to("#loader", {
     opacity: 0,
@@ -277,7 +300,7 @@ async function main() {
       setTimeout(() => {
         musicRequest.style.opacity = 1;
       }, 100);
-    }
+    },
   });
 
   // Setup music toggle & auto play
@@ -291,7 +314,8 @@ async function main() {
 
   yesMusicButton.addEventListener("click", () => {
     backgroundMusic.play();
-    musicToggle.innerHTML = '<img src="/icons/stop-icon.png" alt="Stop Music" />';
+    musicToggle.innerHTML =
+      '<img src="/icons/stop-icon.png" alt="Stop Music" />';
     loadingElement.style.opacity = 0;
     setTimeout(() => {
       loadingElement.style.display = "none";
@@ -302,7 +326,8 @@ async function main() {
 
   noMusicButton.addEventListener("click", () => {
     backgroundMusic.stop();
-    musicToggle.innerHTML = '<img src="/icons/play-icon.png" alt="Play Music" />';
+    musicToggle.innerHTML =
+      '<img src="/icons/play-icon.png" alt="Play Music" />';
     loadingElement.style.opacity = 0;
     setTimeout(() => {
       loadingElement.style.display = "none";
@@ -312,7 +337,21 @@ async function main() {
   });
 
   // Setup Event Listeners
-  setupEventListeners(camera, renderer, renderer3D, outlinePass, bloomEffect, ssaaPass, composer, astronaut, state, planets, techStack, beacon, bokehPass);
+  setupEventListeners(
+    camera,
+    renderer,
+    renderer3D,
+    outlinePass,
+    bloomEffect,
+    ssaaPass,
+    composer,
+    astronaut,
+    state,
+    planets,
+    techStack,
+    beacon,
+    bokehPass
+  );
 
   // Setup Navigation
   const nav = document.getElementById("navigation");
@@ -386,7 +425,6 @@ async function main() {
     z: astronaut.position.z + 15,
   });
 
-
   // Animation Loop
   function animate() {
     stats.begin();
@@ -455,7 +493,8 @@ async function main() {
 
       dialogData.forEach((dialog) => {
         const dialogY = dialog.dialogPosition.y;
-        const isDialogVisible = dialogY >= visibleRange.min && dialogY <= visibleRange.max;
+        const isDialogVisible =
+          dialogY >= visibleRange.min && dialogY <= visibleRange.max;
 
         if (isDialogVisible) {
           if (!allDialogsShown[dialog.id]) {
@@ -467,7 +506,8 @@ async function main() {
 
             setTimeout(() => {
               idsToshow[dialog.id] = true;
-              allDialogsShown[dialog.id].element.className = "user-dialog visible";
+              allDialogsShown[dialog.id].element.className =
+                "user-dialog visible";
             }, 50);
           }
 
@@ -483,10 +523,15 @@ async function main() {
             }
 
             if (!state.canMove) {
-              const targetPosition = new THREE.Vector3().copy(astronaut.position);
+              const targetPosition = new THREE.Vector3().copy(
+                astronaut.position
+              );
               targetPosition.y = dialogY - 1;
               setAstronautVelocity(0);
-              astronaut.position.y = astronaut.position.lerp(targetPosition, 0.05).y;
+              astronaut.position.y = astronaut.position.lerp(
+                targetPosition,
+                0.05
+              ).y;
               camera.position.y = astronaut.position.y + 2;
             }
 

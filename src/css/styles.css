@@ -9,6 +9,12 @@
   color: #ccc;
 }
 
+#small-screen-indicator{
+  display: none;
+  
+}
+
+
 #music-toggle {
   background-color: transparent;
   border: none;

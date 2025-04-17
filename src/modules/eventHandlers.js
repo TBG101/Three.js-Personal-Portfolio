@@ -14,9 +14,19 @@ import { moveAstronaut } from "./astronaut";
  * @property {string} name
  */
 
-export function handleResize(camera, renderer, labelRenderer, outlinePass, bloomEffect, ssaaPass, composer) {
+export function handleResize(
+  camera,
+  renderer,
+  labelRenderer,
+  outlinePass,
+  bloomEffect,
+  ssaaPass,
+  composer
+) {
   const width = window.innerWidth;
   const height = window.innerHeight;
+  
+
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
   renderer.setSize(width, height);
@@ -266,7 +276,8 @@ export function handleKeyDown(event, astronaut, camera, state) {
   if (!astronaut) return;
   if (state.contactShown) return;
 
-  const deltaY = event.key === "ArrowUp" ? 2 : event.key === "ArrowDown" ? -2 : 0;
+  const deltaY =
+    event.key === "ArrowUp" ? 2 : event.key === "ArrowDown" ? -2 : 0;
   if (deltaY === 0) return;
 
   const newAstronautY = astronaut.position.y + deltaY;
@@ -282,5 +293,3 @@ export function handleKeyDown(event, astronaut, camera, state) {
   );
   state.currentFocus = -1;
 }
-
-
