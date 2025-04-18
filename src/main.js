@@ -195,7 +195,7 @@ async function main() {
       </p>
     </div>```;
     
-    document.getElementById("small-screen-indicator").style.display = "block";
+    document.getElementById("small-screen-indicator").style.display = "flex";
     return;
   }
 
