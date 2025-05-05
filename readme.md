@@ -13,11 +13,9 @@ Welcome to my **personal portfolio**! 🚀 This website is a showcase of my proj
 ---
 
 ## 🛠️ Technologies Used
-- **Frontend**: HTML, CSS, JavaScript, TailwindCSS
+- **Frontend**: HTML, CSS, JavaScript, TailwindCSS,GSAP
 - **3D Models**: Blender, Three.js
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB, MySQL, PostgreSQL
-- **Other Tools**: Docker, Firebase, GraphQL, Git
+- **Other Tools**: Git
 
 ---
 
@@ -38,7 +36,7 @@ Welcome to my **personal portfolio**! 🚀 This website is a showcase of my proj
    ```bash
    npm run dev
    ```
-5. Open your browser and go to `http://localhost:3000`.
+5. Open your browser and go to `http://localhost:5173`.
 
 ---
 
@@ -51,8 +49,8 @@ Welcome to my **personal portfolio**! 🚀 This website is a showcase of my proj
 ## 📧 Contact
 Feel free to reach out to me via:
 - **Email**: ziedhrz@gmail.com
-- **LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/zied-harzallah)
-- **GitHub**: [Your GitHub Profile](https://github.com/TBG101)
+- **LinkedIn**: [zied-harzallah](https://linkedin.com/in/zied-harzallah)
+- **GitHub**: [TBG101](https://github.com/TBG101)
 
 ---
 

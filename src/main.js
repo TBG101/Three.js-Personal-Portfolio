@@ -95,12 +95,19 @@ function setupEventListeners(
 }
 
 function setupNavigation(nav, navItems, state) {
+  let navThrottle = false;
+
   nav.addEventListener("mousemove", (event) => {
+    if (navThrottle) return;
+    navThrottle = true;
     const rect = nav.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width - 0.5) * 30;
     const y = ((event.clientY - rect.top) / rect.height - 0.5) * -10;
 
     nav.style.transform = `rotateX(${y}deg) rotateY(${x}deg)`;
+    setTimeout(() => {
+      navThrottle = false;
+    }, 18);
   });
 
   nav.addEventListener("mouseleave", () => {
@@ -146,7 +153,6 @@ function setupPlanetNavigation(navigationPlanets, planetData, state) {
   });
 }
 
-// Optimized the setupMusicToggle function to avoid redundant DOM queries and improve performance
 function setupMusicToggle(audioLoader, listener) {
   const musicToggle =
     document.getElementById("music-toggle") || createMusicToggle();
@@ -185,17 +191,40 @@ function createMusicToggle() {
   return musicToggle;
 }
 
-async function main() {
-  // check screen size
+function showSmallScreenIndicator() {
   if (window.innerWidth < 800) {
-    document.body.innerHTML = ```<div id="small-screen-indicator">
+    const smallScreenIndicator = document.createElement("div");
+    smallScreenIndicator.id = "small-screen-indicator";
+    smallScreenIndicator.innerHTML = `
       <p>
         This website is not optimized for small screens. Please use a larger
         screen for the best experience.
       </p>
-    </div>```;
+    `;
 
-    document.getElementById("small-screen-indicator").style.display = "flex";
+    smallScreenIndicator.style.display = "flex";
+    smallScreenIndicator.style.justifyContent = "center";
+    smallScreenIndicator.style.alignItems = "center";
+    smallScreenIndicator.style.position = "fixed";
+    smallScreenIndicator.style.top = "0";
+    smallScreenIndicator.style.left = "0";
+    smallScreenIndicator.style.width = "100vw";
+    smallScreenIndicator.style.height = "100vh";
+    smallScreenIndicator.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    smallScreenIndicator.style.color = "white";
+    smallScreenIndicator.style.fontSize = "1.5rem";
+    smallScreenIndicator.style.textAlign = "center";
+    smallScreenIndicator.style.zIndex = "1000";
+
+    document.body.appendChild(smallScreenIndicator);
+    return true;
+  }
+  return false;
+}
+
+async function main() {
+  // check screen size
+  if (showSmallScreenIndicator()) {
     return;
   }
 
@@ -215,9 +244,11 @@ async function main() {
 
   // Lights
   initLights(scene);
+  const currentDownloaderElement = document.getElementById("current-download");
 
   // Background - HDR Space Texture
   const loader = new THREE.TextureLoader();
+  currentDownloaderElement.innerText = "Downloading Background Texture";
   loader.load("./textures/space_blue.webp", (texture) => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
@@ -241,7 +272,6 @@ async function main() {
 
   // Stars
   const stars = addStars(scene, 1500);
-  const currentDownloaderElement = document.getElementById("current-download");
 
   // Load Astronaut Model
   currentDownloaderElement.innerText = "Downloading Astronaut Model";
@@ -300,7 +330,7 @@ async function main() {
     ease: "power2.out",
     onComplete: () => {
       document.getElementById("loader").style.display = "none";
-      document.getElementById("current-download").style.display = "none";
+      currentDownloaderElement.style.display = "none";
       const musicRequest = document.getElementById("music-request");
       musicRequest.style.display = "block";
       setTimeout(() => {
@@ -406,8 +436,8 @@ async function main() {
   });
 
   scene.add(initInstructions());
-  /** @type {CSS3DObject[]} **/
-  let allDialogsShown = [];
+  /** @type {Record<number, CSS3DObject>} **/
+  let allDialogsShown = {};
 
   let astroHeight = 0;
   let lastDialogId = -1;
@@ -497,6 +527,7 @@ async function main() {
       const astronautY = astronaut.position.y;
       const visibleRange = { min: astronautY - 2, max: astronautY + 2 };
 
+
       dialogData.forEach((dialog) => {
         const dialogY = dialog.dialogPosition.y;
         const isDialogVisible =
@@ -504,21 +535,24 @@ async function main() {
 
         if (isDialogVisible) {
           if (!allDialogsShown[dialog.id]) {
-            allDialogsShown[dialog.id] = createDialog(scene, dialog.text, {
+            const newDialog = createDialog(scene, dialog.text, {
               x: dialog.dialogPosition.x,
               y: dialogY + astroHeight / 2,
               z: astronaut.position.z,
             });
+            allDialogsShown[dialog.id] = newDialog;
 
+            // Slight delay for animation effect
             setTimeout(() => {
               idsToshow[dialog.id] = true;
-              allDialogsShown[dialog.id].element.className =
-                "user-dialog visible";
+              newDialog.element.classList.add("visible");
+              newDialog.element.classList.remove("hidden");
             }, 50);
           }
 
           const dialogObject = allDialogsShown[dialog.id];
           if (dialogObject) {
+            // Float animation
             dialogObject.position.y += 0.001 * Math.sin(currentTime * 1.5);
             dialogObject.position.x += 0.00025 * Math.cos(currentTime);
             dialogObject.position.z += 0.0005 * Math.sin(currentTime);
@@ -528,33 +562,36 @@ async function main() {
               state.canMove = false;
             }
 
-            if (!state.canMove) {
-              const targetPosition = new THREE.Vector3().copy(
-                astronaut.position
+            if (!state.canMove && lastDialogId === dialog.id) {
+              const targetY = dialogY - 1;
+              const targetPos = new THREE.Vector3(
+                astronaut.position.x,
+                targetY,
+                astronaut.position.z
               );
-              targetPosition.y = dialogY - 1;
+
               setAstronautVelocity(0);
-              astronaut.position.y = astronaut.position.lerp(
-                targetPosition,
-                0.05
-              ).y;
+              astronaut.position.y = astronaut.position.lerp(targetPos, 0.05).y;
               camera.position.y = astronaut.position.y + 2;
             }
 
             if (idsToshow[dialog.id]) {
-              dialogObject.element.className = "user-dialog visible";
+              dialogObject.element.classList.add("visible");
+              dialogObject.element.classList.remove("hidden");
             }
           }
         } else {
           const dialogObject = allDialogsShown[dialog.id];
           if (dialogObject) {
-            dialogObject.element.className = "user-dialog hidden";
+            dialogObject.element.classList.remove("visible");
+            dialogObject.element.classList.add("hidden");
           }
-        }
 
-        if (lastDialogId === dialog.id && !isDialogVisible) {
-          lastDialogId = -1;
-          state.canMove = true;
+          // Re-enable movement if astronaut left the dialog zone
+          if (lastDialogId === dialog.id) {
+            lastDialogId = -1;
+            state.canMove = true;
+          }
         }
       });
     }
@@ -569,6 +606,12 @@ async function main() {
   }
 
   animate();
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "d" || event.key === "D") {
+      stats.dom.style.display = stats.dom.style.display === "none" ? "block" : "none";
+    }
+  });
 }
 
 main();

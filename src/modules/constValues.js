@@ -53,24 +53,24 @@ const dialogData = [
 
 const techStack = [
   {
-    name: "CSS",
-    icon: "/models/techstack/css.glb",
-  },
-  {
     name: "HTML",
     icon: "/models/techstack/html.glb",
+  },
+  {
+    name: "CSS",
+    icon: "/models/techstack/css.glb",
   },
   {
     name: "JavaScript",
     icon: "/models/techstack/js.glb",
   },
   {
-    name: "Flutter",
-    icon: "/models/techstack/flutter.glb",
-  },
-  {
     name: "React.js",
     icon: "/models/techstack/reactjs.glb",
+  },
+  {
+    name: "Next.js",
+    icon: "/models/techstack/nextjs.glb",
   },
   {
     name: "Node.js",
@@ -85,16 +85,32 @@ const techStack = [
     icon: "/models/techstack/mongodb.glb",
   },
   {
-    name: "Firebase",
-    icon: "/models/techstack/firebase.glb",
+    name: "PostgresSQL",
+    icon: "/models/techstack/PostgresSQL.glb",
   },
   {
-    name: "C#",
-    icon: "/models/techstack/csharp.glb",
+    name: "MySQL",
+    icon: "/models/techstack/MySQL.glb",
+  },
+  {
+    name: "GraphQL",
+    icon: "/models/techstack/graphql.glb",
+  },
+  {
+    name: "Flutter",
+    icon: "/models/techstack/flutter.glb",
+  },
+  {
+    name: "Rust",
+    icon: "/models/techstack/rust.glb",
   },
   {
     name: "C++",
     icon: "/models/techstack/cpp.glb",
+  },
+  {
+    name: "C#",
+    icon: "/models/techstack/csharp.glb",
   },
   {
     name: "Python",
@@ -113,16 +129,8 @@ const techStack = [
     icon: "/models/techstack/docker.glb",
   },
   {
-    name: "Figma",
-    icon: "/models/techstack/figma.glb",
-  },
-  {
     name: "Blender",
     icon: "/models/techstack/blender.glb",
-  },
-  {
-    name: "Rust",
-    icon: "/models/techstack/rust.glb",
   },
   {
     name: "Tailwind",
@@ -133,16 +141,12 @@ const techStack = [
     icon: "/models/techstack/tauri.glb",
   },
   {
-    name: "PostgresSQL",
-    icon: "/models/techstack/PostgresSQL.glb",
+    name: "Three.js",
+    icon: "/models/techstack/threejs.glb",
   },
   {
-    name: "MySQL",
-    icon: "/models/techstack/MySQL.glb",
-  },
-  {
-    name: "graphql",
-    icon: "/models/techstack/graphql.glb",
+    name: "FFmpeg",
+    icon: "/models/techstack/ffmpeg.glb",
   },
 ];
 

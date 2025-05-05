@@ -249,7 +249,6 @@ export async function createPlanet(
   } = data;
   const basePlanetGroup = new THREE.Group();
   basePlanetGroup.rotation.z = (-23.4 * Math.PI) / 180;
-  scene.add(basePlanetGroup);
 
   const loader = new THREE.TextureLoader();
   const geometry = new THREE.IcosahedronGeometry(1, 10);
@@ -361,6 +360,7 @@ export async function createPlanet(
     planetSize: earthRadius,
     scale: 0.1,
   });
+  scene.add(basePlanetGroup);
 
   return {
     mesh: earthMesh,

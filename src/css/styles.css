@@ -22,6 +22,11 @@
 #music-toggle {
   background-color: transparent;
   border: none;
+  cursor: pointer;
+
+}
+.nav-item{
+  cursor: pointer;
 }
 
 #loading {
