@@ -4,9 +4,10 @@ import { techStack } from "./constValues";
 import { CSS3DObject } from "three/addons/renderers/CSS3DRenderer.js";
 import { techStackDirection } from "./constValues";
 
-export async function initTechStackSection(scene) {
+export async function initTechStackSection(scene, camera, customLoader) {
   let techStackGroup = new THREE.Group();
-  const loader = new GLTFLoader();
+  // Use provided loader or create a new one
+  const loader = customLoader || new GLTFLoader();
   const half = Math.ceil(techStack.length / 2);
   const Zaxis = -10;
   const gridSize = 3;

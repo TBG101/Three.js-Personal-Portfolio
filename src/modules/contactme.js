@@ -7,9 +7,10 @@ let becaonBasePosition = new THREE.Vector3(0, 0, 0);
  * @param {any} scene
  * @param {THREE.Vector3} beaconPosition
  */
-export async function createBeacon(scene, beaconPosition) {
+export async function createBeacon(scene, beaconPosition, customLoader) {
   const beacon = await new Promise((resolve, reject) => {
-    const loader = new GLTFLoader();
+    // Use provided loader or create a new one
+    const loader = customLoader || new GLTFLoader();
     loader.load(
       "./models/alien_beacon.glb",
       (gltf) => {

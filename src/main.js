@@ -11,6 +11,7 @@ import {
   postProccesing,
 } from "./modules/init";
 import { CSS3DRenderer } from "three/addons/renderers/CSS3DRenderer.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { createDialog, initInstructions } from "./modules/dialog";
 import {
@@ -34,6 +35,7 @@ import {
 } from "./modules/techStack";
 import { createBeacon, moveBeacon } from "./modules/contactme";
 import { loadAstronaut } from "./modules/astronaut";
+import { createLoadingManager } from "./modules/loadingManager";
 import {
   animatePlanets,
   animateStars,
@@ -181,6 +183,7 @@ function setupMusicToggle(audioLoader, listener) {
   });
 
   return backgroundMusic;
+
 }
 
 function createMusicToggle() {
@@ -244,46 +247,136 @@ async function main() {
 
   // Lights
   initLights(scene);
-  const currentDownloaderElement = document.getElementById("current-download");
+  const currentDownloaderElement = document.getElementById("current-download");  // Create a boolean to track when scene is actually ready
+  let isSceneFullyReady = false;
+
+  // Set up loading manager to track all assets
+  const loadingManager = createLoadingManager(currentDownloaderElement, () => {
+    // This function will be called when THREE.js reports all assets are loaded
+    console.log("THREE.js LoadingManager reports loading complete.");
+
+    // Set a safety timeout to ensure all processing is complete before showing music choice
+    setTimeout(() => {
+      if (isSceneFullyReady) {
+        console.log("Scene is fully ready - showing music request");
+        showMusicRequest();
+      } else {
+        console.log("Waiting for scene to be fully ready...");
+        // If the scene isn't fully ready yet, wait for that flag
+        const checkInterval = setInterval(() => {
+          if (isSceneFullyReady) {
+            console.log("Scene became fully ready - showing music request");
+            clearInterval(checkInterval);
+            showMusicRequest();
+          }
+        }, 100);
+
+        // Absolute fallback - if after 10 seconds we still aren't ready, force it
+        setTimeout(() => {
+          if (!isSceneFullyReady) {
+            console.warn("Scene never reported ready after 10s - forcing music request");
+            clearInterval(checkInterval);
+            isSceneFullyReady = true;
+            showMusicRequest();
+          }
+        }, 10000);
+      }
+    }, 1000);
+  });
+
+  // Function to handle showing the music request after loading
+  function showMusicRequest() {
+    gsap.to("#loader", {
+      opacity: 0,
+      duration: 1,
+      ease: "power2.out",
+    });
+    gsap.to("#current-download", {
+      opacity: 0,
+      duration: 1,
+      ease: "power2.out",
+    });
+    gsap.to("#loading-progress-bar", {
+      opacity: 0,
+      duration: 1,
+      ease: "power2.out",
+      onComplete: () => {
+        document.getElementById("loader").style.display = "none";
+        currentDownloaderElement.style.display = "none";
+        document.getElementById("loading-progress-bar").style.display = "none";
+
+        // Show music request after all assets are loaded
+        const musicRequest = document.getElementById("music-request");
+        musicRequest.style.display = "block";
+        setTimeout(() => {
+          musicRequest.style.opacity = 1;
+        }, 100);
+      },
+    });
+  }
+  // Use loading manager for all loaders
+  const textureLoader = new THREE.TextureLoader(loadingManager);
+  const gltfLoader = new GLTFLoader(loadingManager);
 
   // Background - HDR Space Texture
-  const loader = new THREE.TextureLoader();
-  currentDownloaderElement.innerText = "Downloading Background Texture";
-  loader.load("./textures/space_blue.webp", (texture) => {
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.setScalar(1);
-    texture.encoding = THREE.sRGBEncoding;
-    texture.mapping = THREE.EquirectangularReflectionMapping;
+  let backgroundTexture;
+  let backgroundPlane;
 
-    scene.environment = texture;
-    scene.background = texture;
-
-    const aspectRatio = texture.image.width / texture.image.height;
-    const geometry = new THREE.PlaneGeometry(1000 * aspectRatio, 1000);
-    const material = new THREE.MeshBasicMaterial({
-      map: texture,
+  try {
+    backgroundTexture = await new Promise((resolve, reject) => {
+      textureLoader.load(
+        "./textures/space_blue.webp",
+        (texture) => {
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.setScalar(1);
+          texture.encoding = THREE.sRGBEncoding;
+          texture.mapping = THREE.EquirectangularReflectionMapping;
+          resolve(texture);
+        },
+        undefined,
+        (error) => reject(error)
+      );
     });
 
-    const backgroundPlane = new THREE.Mesh(geometry, material);
-    backgroundPlane.position.set(40, 250, -400); // Adjust as needed
+    scene.environment = backgroundTexture;
+    scene.background = backgroundTexture;
+
+    const aspectRatio = backgroundTexture.image.width / backgroundTexture.image.height;
+    const geometry = new THREE.PlaneGeometry(1000 * aspectRatio, 1000);
+    const material = new THREE.MeshBasicMaterial({
+      map: backgroundTexture,
+    });
+
+    backgroundPlane = new THREE.Mesh(geometry, material);
+    backgroundPlane.position.set(40, 250, -400);
     scene.add(backgroundPlane);
-  });
+  } catch (error) {
+    console.error("Failed to load background texture:", error);
+  }
 
   // Stars
   const stars = addStars(scene, 1500);
 
-  // Load Astronaut Model
-  currentDownloaderElement.innerText = "Downloading Astronaut Model";
-  const { astronaut, animations } = await loadAstronaut(scene);
+  // Load assets in parallel
+  const [astronautResult, planets, beacon, techStack] = await Promise.all([
+    // Astronaut
+    loadAstronaut(scene, gltfLoader),
 
-  // Planets
-  currentDownloaderElement.innerText = "Downloading Planets";
-  const planets = await createPlanets(scene, camera);
+    // Planets
+    createPlanets(scene, camera),
 
-  // Contact Section
-  currentDownloaderElement.innerText = "Downloading Beacon";
-  const beacon = await createBeacon(scene, new THREE.Vector3(-10, 460, -15));
+    // Beacon
+    createBeacon(scene, new THREE.Vector3(-10, 460, -15), gltfLoader),
+
+    // Tech stack
+    initTechStackSection(scene, camera, gltfLoader)
+  ]);
+
+  // Extract astronaut data
+  const { astronaut, animations } = astronautResult;
+
+  // Set up contact section event listener
   document.getElementById("close-sos").addEventListener("click", () => {
     state.contactShown = false;
     const element = document.getElementById("sos-interface");
@@ -291,20 +384,16 @@ async function main() {
     element.classList.add("hidden");
   });
 
-  // astroids
+  // Asteroids
   let animateAstrroProgress = 0;
   const { curve, instancedMesh } = randomAsteroids(scene, 1);
 
-  // techStack
-  currentDownloaderElement.innerText = "Downloading TechStacks";
-  const techStack = await initTechStackSection(scene, camera);
+  // Create selection array for post-processing
   let selection = [];
-
   techStack.children.forEach((stack) => {
     selection.push(stack.children[0]);
   });
   selection.push(beacon);
-
   // Post Processing
   const { composer, bokehPass, outlinePass, bloomEffect, ssaaPass } =
     postProccesing(scene, camera, renderer, selection);
@@ -315,29 +404,17 @@ async function main() {
   document.body.appendChild(stats.dom);
 
   // Load background music
-  const audioLoader = new THREE.AudioLoader();
+  const audioLoader = new THREE.AudioLoader(loadingManager);
   const listener = new THREE.AudioListener();
   camera.add(listener);
+  // Ensure all GPU processes are complete before marking scene as ready
+  // This forces a single render pass to finalize all GPU operations
+  renderer.render(scene, camera);
+  composer.render();
 
-  gsap.to("#loader", {
-    opacity: 0,
-    duration: 1,
-    ease: "power2.out",
-  });
-  gsap.to("#current-download", {
-    opacity: 0,
-    duration: 1,
-    ease: "power2.out",
-    onComplete: () => {
-      document.getElementById("loader").style.display = "none";
-      currentDownloaderElement.style.display = "none";
-      const musicRequest = document.getElementById("music-request");
-      musicRequest.style.display = "block";
-      setTimeout(() => {
-        musicRequest.style.opacity = 1;
-      }, 100);
-    },
-  });
+  // Mark that the scene is fully ready now
+  // This is the critical flag that indicates ALL assets and processing are complete
+  isSceneFullyReady = true;
 
   // Setup music toggle & auto play
   const backgroundMusic = setupMusicToggle(audioLoader, listener, camera);
@@ -347,11 +424,11 @@ async function main() {
   const noMusicButton = document.getElementById("no-music");
   const loadingElement = document.getElementById("loading");
   const musicToggle = document.getElementById("music-toggle");
-
   yesMusicButton.addEventListener("click", () => {
     backgroundMusic.play();
     musicToggle.innerHTML =
       '<img src="/icons/stop-icon.png" alt="Stop Music" />';
+    // Only hide the loading element after user makes a choice about music
     loadingElement.style.opacity = 0;
     setTimeout(() => {
       loadingElement.style.display = "none";
@@ -364,6 +441,7 @@ async function main() {
     backgroundMusic.stop();
     musicToggle.innerHTML =
       '<img src="/icons/play-icon.png" alt="Play Music" />';
+    // Only hide the loading element after user makes a choice about music
     loadingElement.style.opacity = 0;
     setTimeout(() => {
       loadingElement.style.display = "none";

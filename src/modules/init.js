@@ -66,9 +66,9 @@ export function initLights(scene) {
  * @param {camera} camera
  * @returns {{mesh: THREE.Mesh, lights: THREE.Mesh, clouds: THREE.Mesh, glow: THREE.Mesh, group: THREE.Group, label: CSS3DObject, name: string}}
  * **/
-export async function createPlanets(scene) {
+export async function createPlanets(scene, camera, customLoader) {
   const planets = [];
-  await planetData.forEach(async (data, index) => {
+  const promises = planetData.map(async (data, index) => {
     const { createFunction, size, position, name, tech, description } = data;
     const planet = await createFunction(
       scene,
@@ -77,13 +77,17 @@ export async function createPlanets(scene) {
       name,
       tech,
       description,
-      index
+      index,
+      customLoader
     );
     createDetailedDescription(data, index);
 
     data.documentSectionEl = document.getElementById(name);
     planets.push(planet);
+    return planet;
   });
+
+  await Promise.all(promises);
   return planets;
 }
 

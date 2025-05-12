@@ -25,7 +25,8 @@
   cursor: pointer;
 
 }
-.nav-item{
+
+.nav-item {
   cursor: pointer;
 }
 
@@ -51,6 +52,47 @@
   opacity: 0;
   display: none;
   transition: 1s ease;
+}
+
+#loading-progress-bar {
+  width: 300px;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 10px 0;
+  position: relative;
+}
+
+#loading-progress-inner {
+  height: 100%;
+  background: linear-gradient(90deg, #0066ff, #00ccff);
+  width: 0%;
+  transition: width 0.2s ease-out;
+  border-radius: 3px;
+}
+
+#loading-progress-bar.complete #loading-progress-inner {
+  background: linear-gradient(90deg, #00ff66, #33cc33);
+}
+
+#loading-progress-bar.error #loading-progress-inner {
+  background: linear-gradient(90deg, #ff3333, #cc3333);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.7;
+  }
 }
 
 #loader {

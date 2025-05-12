@@ -5,9 +5,10 @@ import { isInBetween } from "./utils";
 
 let astronautVelocity = 0;
 
-export async function loadAstronaut(scene) {
+export async function loadAstronaut(scene, customLoader) {
   return new Promise((resolve, reject) => {
-    const loader = new GLTFLoader();
+    // Use provided loader or create a new one
+    const loader = customLoader || new GLTFLoader();
     loader.load(
       astronautPath,
       (gltf) => {
@@ -24,7 +25,7 @@ export async function loadAstronaut(scene) {
         scene.add(astronaut);
         resolve({ astronaut, animations: gltf.animations });
       },
-      () => {},
+      () => { },
       (error) => reject(error)
     );
   });

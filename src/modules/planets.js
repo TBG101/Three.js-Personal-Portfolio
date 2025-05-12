@@ -109,9 +109,11 @@ async function createOrbitTech(
   radius = 1,
   scale = 0.05,
   offsetX = 0,
-  techPath = "./public/models/techstack/cpp.glb"
+  techPath = "./public/models/techstack/cpp.glb",
+  customLoader
 ) {
-  const loader = new GLTFLoader();
+  // Use provided loader or create a new one
+  const loader = customLoader || new GLTFLoader();
   /**@type {THREE.Object3D<Object3DEventMap>} */
   let techMesh = null;
   await new Promise((resolve, reject) => {
@@ -180,7 +182,7 @@ async function createOrbitTech(
   return { techMesh, animateTech, orbitCircle };
 }
 
-async function createAllOrbits(earthGroup, techUsed, animateFunctions = []) {
+async function createAllOrbits(earthGroup, techUsed, animateFunctions = [], customLoader) {
   const orbitTiltAngles = [];
   const orbitBaseSpacing = 20;
   let baseOrbitRadius = 1;
@@ -212,15 +214,14 @@ async function createAllOrbits(earthGroup, techUsed, animateFunctions = []) {
 
       let orbitRadius =
         baseOrbitRadius + index * 0.1 * Math.random() * orbitSpacing;
-      let orbitOffset = index * (Math.PI / 4);
-
-      const { techMesh, animateTech, orbitCircle } = await createOrbitTech(
+      let orbitOffset = index * (Math.PI / 4); const { techMesh, animateTech, orbitCircle } = await createOrbitTech(
         THREE.MathUtils.degToRad(orbitTilt),
         orbitOffset,
         orbitRadius,
         0.05,
         0.5,
-        icon
+        icon,
+        customLoader
       );
       animateFunctions.push(animateTech);
       earthGroup.add(orbitCircle);
@@ -235,7 +236,9 @@ export async function createPlanet(
   size,
   name,
   techUsed,
-  data = {}
+  data = {},
+  index,
+  customLoader
 ) {
   const {
     map,
@@ -250,7 +253,8 @@ export async function createPlanet(
   const basePlanetGroup = new THREE.Group();
   basePlanetGroup.rotation.z = (-23.4 * Math.PI) / 180;
 
-  const loader = new THREE.TextureLoader();
+  // Use provided loader or create a new one
+  const loader = customLoader || new THREE.TextureLoader();
   const geometry = new THREE.IcosahedronGeometry(1, 10);
 
   const material = new THREE.MeshPhongMaterial({
@@ -342,10 +346,9 @@ export async function createPlanet(
   const glowMesh = new THREE.Mesh(geometry, fresnelMat);
   glowMesh.scale.setScalar(1.015);
   basePlanetGroup.add(glowMesh);
-
   // orbits
   let animateFunctions = [];
-  await createAllOrbits(basePlanetGroup, techUsed, animateFunctions);
+  await createAllOrbits(basePlanetGroup, techUsed, animateFunctions, customLoader);
 
   // Position and Scale
   basePlanetGroup.scale.setScalar(size);
@@ -379,12 +382,15 @@ export async function createNeptune(
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
-  techUsed
+  techUsed,
+  description,
+  index,
+  customLoader
 ) {
   return await createPlanet(scene, position, size, name, techUsed, {
     map: "./textures/neptune/base.jpg",
     fresneData: { rimHex: 0x00aaff },
-  });
+  }, index, customLoader);
 }
 
 export async function createEris(
@@ -392,12 +398,15 @@ export async function createEris(
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
-  techUsed
+  techUsed,
+  description,
+  index,
+  customLoader
 ) {
   return await createPlanet(scene, position, size, name, techUsed, {
     map: "./textures/eris/base.jpg",
     fresneData: { rimHex: 0xaaaaaa },
-  });
+  }, index, customLoader);
 }
 
 export async function createJupiter(
@@ -405,12 +414,15 @@ export async function createJupiter(
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
-  techUsed
+  techUsed,
+  description,
+  index,
+  customLoader
 ) {
   return await createPlanet(scene, position, size, name, techUsed, {
     map: "./textures/jupiter/base.jpg",
     fresneData: { rimHex: 0xffe0bd },
-  });
+  }, index, customLoader);
 }
 
 export async function createEarth(
@@ -418,7 +430,10 @@ export async function createEarth(
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
-  techUsed
+  techUsed,
+  description,
+  index,
+  customLoader
 ) {
   return await createPlanet(scene, position, size, name, techUsed, {
     map: "./textures/earth/00_earthmap1k.jpg",
@@ -428,7 +443,7 @@ export async function createEarth(
     lightsMap: "./textures/earth/03_earthlights1k.jpg",
     cloudsMap: "./textures/earth/04_earthcloudmap.jpg",
     cloudsMapTrans: "./textures/earth/05_earthcloudmaptrans.jpg",
-  });
+  }, index, customLoader);
 }
 
 export async function createMars(
@@ -436,7 +451,10 @@ export async function createMars(
   position = { x: 0, y: 0, z: 0 },
   size,
   name,
-  techUsed
+  techUsed,
+  description,
+  index,
+  customLoader
 ) {
   return await createPlanet(scene, position, size, name, techUsed, {
     map: "./textures/mars/base.jpg",
@@ -444,5 +462,5 @@ export async function createMars(
     bumpMap: "./textures/mars/bump.png",
     bumpScale: 0.05,
     fresneData: { rimHex: 0xf4d3a6 },
-  });
+  }, index, customLoader);
 }
