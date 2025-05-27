@@ -1,4 +1,4 @@
-# Astronut Portfolio
+# TBG Portfolio
 
 Welcome to my **personal portfolio**! 🚀 This website is a showcase of my projects, skills, and passion for technology and creativity. Dive in and explore what I do!
 
