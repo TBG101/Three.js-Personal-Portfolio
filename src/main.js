@@ -402,6 +402,7 @@ async function main() {
   const stats = new Stats();
   stats.showPanel(0);
   document.body.appendChild(stats.dom);
+  stats.dom.style.display = "none";
 
   // Load background music
   const audioLoader = new THREE.AudioLoader(loadingManager);
@@ -692,4 +693,35 @@ async function main() {
   });
 }
 
-main();
+// Portfolio Selection Logic
+function initPortfolioSelection() {
+  const portfolioSelection = document.getElementById('portfolio-selection');
+  const select3DBtn = document.getElementById('select-3d');
+  const select2DBtn = document.getElementById('select-2d');
+  const loadingDiv = document.getElementById('loading');
+
+  // Show portfolio selection first
+  portfolioSelection.style.display = 'flex';
+  loadingDiv.style.display = 'none';
+
+  select3DBtn.addEventListener('click', () => {
+    // Hide selection screen and start 3D portfolio
+    portfolioSelection.classList.add('hidden');
+    setTimeout(() => {
+      portfolioSelection.style.display = 'none';
+      loadingDiv.style.display = 'flex';
+      // Continue with 3D portfolio initialization
+      main();
+    }, 600);
+  });
+
+  select2DBtn.addEventListener('click', () => {
+    // Redirect to traditional portfolio
+    window.location.href = './portfolio.html';
+  });
+}
+
+// Initialize portfolio selection on page load
+document.addEventListener('DOMContentLoaded', () => {
+  initPortfolioSelection();
+});

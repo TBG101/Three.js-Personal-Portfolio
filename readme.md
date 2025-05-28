@@ -4,17 +4,29 @@ Welcome to my **personal portfolio**! 🚀 This website is a showcase of my proj
 
 ---
 
-## 🌟 Features
-- **Interactive 3D Models**: Immerse yourself in stunning 3D visuals of planets, tech stacks, and more.
-- **Smooth Animations**: Experience seamless transitions and animations.
-- **Contact Section**: Get in touch with me effortlessly.
-- **Tech Stack Showcase**: A dynamic representation of the tools and technologies I use.
+## 🌟 Portfolio Versions
+This repository contains two versions of my professional portfolio:
+
+### 1. 3D Astronaut Portfolio (index.html)
+An interactive, space-themed portfolio with a 3D astronaut model created using Three.js and GSAP animations.
+- Features immersive 3D space environment
+- Interactive elements and animations
+- Projects displayed in a unique cosmic context
+
+### 2. Standard Portfolio (portfolio.html)
+A professional, dark-themed traditional portfolio website with modern UI elements.
+- Clean, professional design with dark mode aesthetics
+- Responsive layout for all devices
+- Project filtering and interactive elements
+- Sections for skills, projects, and contact information
 
 ---
 
 ## 🛠️ Technologies Used
-- **Frontend**: HTML, CSS, JavaScript, TailwindCSS,GSAP
+- **Frontend**: HTML, CSS, JavaScript
 - **3D Models**: Blender, Three.js
+- **Animation**: GSAP
+- **Build Tool**: Vite
 - **Other Tools**: Git
 
 ---
@@ -36,7 +48,9 @@ Welcome to my **personal portfolio**! 🚀 This website is a showcase of my proj
    ```bash
    npm run dev
    ```
-5. Open your browser and go to `http://localhost:5173`.
+5. Access the portfolios:
+   - 3D Portfolio: http://localhost:5173/
+   - Standard Portfolio: http://localhost:5173/portfolio.html
 
 ---
 
@@ -49,6 +63,8 @@ Welcome to my **personal portfolio**! 🚀 This website is a showcase of my proj
 ## 📧 Contact
 Feel free to reach out to me via:
 - **Email**: ziedhrz@gmail.com
+- **GitHub**: [TBG101](https://github.com/TBG101)
+- **LinkedIn**: [Zied Harzallah](https://linkedin.com/in/zied-harzallah)
 - **LinkedIn**: [zied-harzallah](https://linkedin.com/in/zied-harzallah)
 - **GitHub**: [TBG101](https://github.com/TBG101)
 
