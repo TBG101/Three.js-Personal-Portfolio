@@ -211,18 +211,122 @@ document.addEventListener('DOMContentLoaded', () => {
             //     }
             // });
         });
-    });
-
-    // Form Submission
+    });    // Form Submission
     const contactForm = document.getElementById('contact-form');
+    const formStatus = document.getElementById('form-status');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+    const btnIcon = submitBtn.querySelector('.btn-icon');
+    const sendAnotherBtn = document.querySelector('.send-another-btn');
+
     if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Here you would typically handle the form submission with AJAX
-            // For now, let's just show an alert
-            alert('Thank you for your message! This is a demo form - in a real site, your message would be sent.');
+
+            // Show loading state
+            showLoadingState();
+
+            try {
+                // Prepare form data for Netlify
+                const formData = new FormData(contactForm);
+
+                // Submit to Netlify
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(formData).toString()
+                });
+
+                if (response.ok) {
+                    showSuccessMessage();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                showErrorMessage();
+            }
+        });
+    }
+
+    // Show another message button handler
+    if (sendAnotherBtn) {
+        sendAnotherBtn.addEventListener('click', () => {
+            hideStatusMessage();
             contactForm.reset();
         });
+    }
+
+    function showLoadingState() {
+        // Disable form
+        submitBtn.disabled = true;
+        contactForm.classList.add('form-submitting');
+
+        // Update button state
+        btnText.classList.add('hidden');
+        btnIcon.classList.add('hidden');
+        btnLoading.classList.remove('hidden');
+        submitBtn.classList.add('loading');
+
+        // Hide any previous status messages
+        formStatus.classList.add('hidden');
+        formStatus.classList.remove('success', 'error');
+    }
+
+    function showSuccessMessage() {
+        // Reset button state
+        resetButtonState();
+
+        // Hide form and show success message
+        contactForm.style.display = 'none';
+
+        // Update status message
+        const statusTitle = formStatus.querySelector('.status-title');
+        const statusText = formStatus.querySelector('.status-text');
+
+        statusTitle.textContent = 'Message Sent Successfully!';
+        statusText.textContent = 'Thank you for reaching out. I\'ll get back to you as soon as possible.';
+
+        formStatus.classList.remove('hidden', 'error');
+        formStatus.classList.add('success');
+
+        // Scroll to status message
+        formStatus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function showErrorMessage() {
+        // Reset button state
+        resetButtonState();
+
+        // Update status message
+        const statusTitle = formStatus.querySelector('.status-title');
+        const statusText = formStatus.querySelector('.status-text');
+
+        statusTitle.textContent = 'Message Failed to Send';
+        statusText.textContent = 'Sorry, there was an error sending your message. Please try again or contact me directly via email.';
+
+        formStatus.classList.remove('hidden', 'success');
+        formStatus.classList.add('error');
+
+        // Scroll to status message
+        formStatus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function resetButtonState() {
+        submitBtn.disabled = false;
+        contactForm.classList.remove('form-submitting');
+
+        btnText.classList.remove('hidden');
+        btnIcon.classList.remove('hidden');
+        btnLoading.classList.add('hidden');
+        submitBtn.classList.remove('loading');
+    }
+
+    function hideStatusMessage() {
+        formStatus.classList.add('hidden');
+        formStatus.classList.remove('success', 'error');
+        contactForm.style.display = 'block';
     }
 
     // Smooth scrolling for anchor links

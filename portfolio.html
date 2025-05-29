@@ -489,9 +489,26 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="contact-form">
-            <form id="contact-form" netlify>
+          </div>          <div class="contact-form">
+            <!-- Form Status Message -->
+            <div id="form-status" class="form-status hidden">
+              <div class="status-icon">
+                <i class="fas fa-check-circle success-icon"></i>
+                <i class="fas fa-exclamation-triangle error-icon"></i>
+              </div>
+              <div class="status-message">
+                <h4 class="status-title"></h4>
+                <p class="status-text"></p>
+              </div>
+              <button type="button" class="btn secondary-btn send-another-btn">
+                Send Another Message
+              </button>
+            </div>            <form id="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+              <input type="hidden" name="form-name" value="contact" />
+              <!-- Honeypot field for spam protection -->
+              <div style="display: none;">
+                <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+              </div>
               <div class="form-group">
                 <input
                   type="text"
@@ -531,8 +548,12 @@
                 ></textarea>
                 <label for="message">Your Message</label>
               </div>
-              <button type="submit" class="btn primary-btn">
-                Send Message <i class="fas fa-paper-plane"></i>
+              <button type="submit" class="btn primary-btn" id="submit-btn">
+                <span class="btn-text">Send Message</span>
+                <span class="btn-loading hidden">
+                  <i class="fas fa-spinner fa-spin"></i> Sending...
+                </span>
+                <i class="fas fa-paper-plane btn-icon"></i>
               </button>
             </form>
           </div>

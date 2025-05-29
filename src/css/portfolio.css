@@ -1276,6 +1276,121 @@ nav ul li a.active {
     color: transparent;
 }
 
+/* Form Status Styles */
+.form-status {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: var(--transition);
+}
+
+.form-status.hidden {
+    display: none;
+}
+
+.form-status.success {
+    border-color: var(--accent-color);
+    background: linear-gradient(135deg, rgba(51, 204, 51, 0.1), var(--card-bg));
+}
+
+.form-status.error {
+    border-color: #ff4757;
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), var(--card-bg));
+}
+
+.status-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.success-icon {
+    color: var(--accent-color);
+    display: none;
+}
+
+.error-icon {
+    color: #ff4757;
+    display: none;
+}
+
+.form-status.success .success-icon {
+    display: block;
+}
+
+.form-status.error .error-icon {
+    display: block;
+}
+
+.status-message h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.status-message p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.send-another-btn {
+    margin-top: 1rem;
+}
+
+/* Submit Button Loading State */
+#submit-btn {
+    position: relative;
+    min-width: 200px;
+}
+
+.btn-text,
+.btn-loading {
+    display: inline-flex;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.btn-loading.hidden,
+.btn-text.hidden {
+    display: none;
+}
+
+.btn-icon {
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+}
+
+#submit-btn:hover .btn-icon {
+    transform: translateX(5px);
+}
+
+#submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+#submit-btn.loading {
+    background: var(--secondary-color);
+}
+
+.btn-loading i {
+    margin-right: 8px;
+}
+
+/* Smooth form transitions */
+#contact-form {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#contact-form.form-submitting {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
 /* Footer */
 footer {
     background-color: var(--darker-bg);
