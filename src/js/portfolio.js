@@ -221,33 +221,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendAnotherBtn = document.querySelector('.send-another-btn');
 
     if (contactForm) {
-        contactForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // contactForm.addEventListener('submit', async (e) => {
+        //     e.preventDefault();
 
-            // Show loading state
-            showLoadingState();
+        //     // Show loading state
+        //     showLoadingState();
 
-            try {
-                // Prepare form data for Netlify
-                const formData = new FormData(contactForm);
+        //     try {
+        //         // Prepare form data for Netlify
+        //         const formData = new FormData(contactForm);
 
-                // Submit to Netlify
-                const response = await fetch('/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams(formData).toString()
-                });
+        //         // Submit to Netlify
+        //         const response = await fetch('/', {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        //             body: new URLSearchParams(formData).toString()
+        //         });
 
-                if (response.ok) {
-                    showSuccessMessage();
-                } else {
-                    throw new Error('Network response was not ok');
-                }
-            } catch (error) {
-                console.error('Form submission error:', error);
-                showErrorMessage();
-            }
-        });
+        //         if (response.ok) {
+        //             showSuccessMessage();
+        //         } else {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //     } catch (error) {
+        //         console.error('Form submission error:', error);
+        //         showErrorMessage();
+        //     }
+        // });
     }
 
     // Show another message button handler
