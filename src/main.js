@@ -696,6 +696,17 @@ async function main() {
 // Portfolio Selection Logic
 function initPortfolioSelection() {
   const portfolioSelection = document.getElementById('portfolio-selection');
+
+  // If we're on the 3D portfolio page (no selection screen), start the 3D experience directly
+  if (!portfolioSelection) {
+    const loadingDiv = document.getElementById('loading');
+    if (loadingDiv) {
+      loadingDiv.style.display = 'flex';
+    }
+    main();
+    return;
+  }
+
   const select3DBtn = document.getElementById('select-3d');
   const select2DBtn = document.getElementById('select-2d');
   const loadingDiv = document.getElementById('loading');
