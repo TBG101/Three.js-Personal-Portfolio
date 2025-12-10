@@ -816,11 +816,11 @@ nav ul li a.active {
     box-shadow: 0 0 35px rgba(0, 102, 255, 0.6);
 }
 
-.space-profile:hover .orbit-ring {
+/* .space-profile:hover .orbit-ring {
     animation-duration: 4s;
     border-top: 2px solid var(--secondary-color);
     border-left: 2px solid var(--primary-color);
-}
+} */
 
 @keyframes orbit {
     0% {
